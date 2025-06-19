@@ -9,20 +9,12 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "routes")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Gil implements JsonSettable{
-    private final String PN_ROUTE_IDX = "routeIdx";
-    private final String PN_THEME_NM = "themeNm";
-    private final String PN_LINE_MSG = "linemsg";
-    private final String PN_THEME_DESCS = "themedescs";
-    private final String PN_BRD_DIV = "brdDiv";
-    private final String PN_CREATED_TIME = "createdtime";
-    private final String PN_MODIFIED_TIME = "modifiedtime";
-
+public class Route implements JsonSettable{
     @Override
     public void setWithJson(JsonObject object) {
         this.idx = object.get(PN_ROUTE_IDX).getAsString();
@@ -61,4 +53,11 @@ public class Gil implements JsonSettable{
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
+    private static final String PN_ROUTE_IDX = "routeIdx";
+    private static final String PN_THEME_NM = "themeNm";
+    private static final String PN_LINE_MSG = "linemsg";
+    private static final String PN_THEME_DESCS = "themedescs";
+    private static final String PN_BRD_DIV = "brdDiv";
+    private static final String PN_CREATED_TIME = "createdtime";
+    private static final String PN_MODIFIED_TIME = "modifiedtime";
 }

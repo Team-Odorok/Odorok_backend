@@ -1,13 +1,8 @@
 package com.odorok.OdorokApplication.infrastructures.service;
 
-import com.odorok.OdorokApplication.infrastructures.domain.Course;
-import com.odorok.OdorokApplication.infrastructures.domain.Gil;
-import com.odorok.OdorokApplication.infrastructures.dto.DurunubiCourse;
-import com.odorok.OdorokApplication.infrastructures.dto.TrackGps;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.List;
 
 public interface DurunubiDataService {
     // 두루누비 길 데이터 로드

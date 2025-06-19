@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Entity
+@Entity(name = "path_coords")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
