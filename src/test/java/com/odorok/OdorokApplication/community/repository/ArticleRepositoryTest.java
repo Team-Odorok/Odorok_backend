@@ -59,7 +59,7 @@ class ArticleRepositoryTest {
         //예상값
         List<String> expected = new ArrayList<>(List.of("열 번째 게시글","두 번째 게시글","일곱 번째 게시글","네 번째 게시글"));
         List<ArticleSummary> articles = articleRepository.findByCondition(cond);
-        List<String> result = new ArrayList();
+        List<String> result = new ArrayList<>();
         for(ArticleSummary as : articles){
             result.add(as.getTitle());
         }

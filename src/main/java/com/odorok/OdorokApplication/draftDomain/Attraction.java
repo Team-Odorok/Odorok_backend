@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Attraction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "content_id")

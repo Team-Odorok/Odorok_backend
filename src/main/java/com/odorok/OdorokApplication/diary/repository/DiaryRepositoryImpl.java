@@ -1,12 +1,11 @@
 package com.odorok.OdorokApplication.diary.repository;
 
-import com.odorok.OdorokApplication.diary.dto.DiaryDetail;
+import com.odorok.OdorokApplication.diary.dto.response.DiaryDetail;
 import com.odorok.OdorokApplication.domain.QDiary;
 import com.odorok.OdorokApplication.domain.QDiaryImage;
 import com.odorok.OdorokApplication.domain.QVisitedCourse;
 import com.odorok.OdorokApplication.infrastructures.domain.QCourse;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

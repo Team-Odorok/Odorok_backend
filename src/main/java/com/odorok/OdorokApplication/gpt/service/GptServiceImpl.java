@@ -1,8 +1,10 @@
 package com.odorok.OdorokApplication.gpt.service;
 
+import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
 import com.odorok.OdorokApplication.gpt.dto.request.GptRequest;
 import com.odorok.OdorokApplication.gpt.dto.response.GptResponse;
 import com.odorok.OdorokApplication.gpt.dto.response.nested.Message;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class GptServiceImpl implements GptService{
     private final WebClient client;
     private final String MODEL;
@@ -37,9 +40,10 @@ public class GptServiceImpl implements GptService{
         Mono<GptResponse> responseMono = client.post().bodyValue(requestObj).retrieve().bodyToMono(GptResponse.class);
         GptResponse response = responseMono.block();
         if(response == null) {
-            throw new RuntimeException("no response from gpt server");
+            throw new GptCommunicationException("no response from gpt server");
+//            throw new RuntimeException("no response from gpt server");
         }
-
+        log.debug("gpt response: {}", response);
         Message message = response.getChoices().get(0).getMessage();
         fullCtx.add(new Prompt(message.getRole(), message.getContent()));
 
