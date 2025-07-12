@@ -2,6 +2,7 @@ package com.odorok.OdorokApplication.diary.service;
 
 import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryChatAnswerRequest;
+import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.response.*;
 import com.odorok.OdorokApplication.gpt.service.GptService;
 
@@ -16,4 +17,6 @@ public interface DiaryService {
     public void decreaseDiaryGenerationItemCount(Long userId);
     public DiaryChatResponse insertAnswer(long userId, DiaryChatAnswerRequest request);
     public VisitedCourseWithoutDiaryResponse findVisitedCourseWithoutDiaryByUserId(long userId);
+    public DiaryChatResponse insertRegeneration(long userId, DiaryRegenerationRequest request);
+    public GptService.Prompt buildRegenerationPrompt(String feedback);
 }

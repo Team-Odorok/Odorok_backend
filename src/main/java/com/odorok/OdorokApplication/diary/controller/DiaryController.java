@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.commons.exception.BadRequestException;
 import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryChatAnswerRequest;
+import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.response.DiaryChatResponse;
 import com.odorok.OdorokApplication.diary.dto.response.DiaryDetail;
 import com.odorok.OdorokApplication.diary.dto.response.DiaryPermissionCheckResponse;
@@ -73,9 +74,18 @@ public class DiaryController {
 //        long userId = user.getUser().getId();
         long userId = 1L; // 테스트용
         DiaryChatResponse chatResponse = diaryService.insertAnswer(userId, request);
-        ResponseRoot<?> response = chatResponse.getContent().endsWith("<END>") ?
+        ResponseRoot<DiaryChatResponse> response = chatResponse.getContent().endsWith("<END>") ?
                 successDone("일지 생성 완료", chatResponse) :
                 successInProgress("답변 제출 및 새 질문 요청 성공", chatResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    @PostMapping("/regeneration")
+    public ResponseEntity<?> registRegeneration(@RequestBody DiaryRegenerationRequest request
+//            ,@AuthenticationPrincipal CustomUserDetails user
+    ) {
+        long userId = 1L;
+        DiaryChatResponse chatResponse = diaryService.insertRegeneration(userId, request);
+        ResponseRoot<DiaryChatResponse> response = successDone("일지 재생성 완료", chatResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

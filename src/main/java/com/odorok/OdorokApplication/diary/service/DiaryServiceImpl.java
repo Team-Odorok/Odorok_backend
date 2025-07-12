@@ -2,6 +2,7 @@ package com.odorok.OdorokApplication.diary.service;
 
 import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
 import com.odorok.OdorokApplication.commons.exception.NotFoundException;
+import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.response.*;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
@@ -37,6 +38,12 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Value("${gpt.system-prompt}")
     private String rawSystemPrompt;
+
+    @Value("${gpt.regeneration-prompt}")
+    private String regenerationPrompt;
+
+    @Value("${gpt.default-feedback-prompt}")
+    private String defaultFeedbackPrompt;
 
     // 일지 생성권 itemId 캐싱.
     @PostConstruct
@@ -118,7 +125,7 @@ public class DiaryServiceImpl implements DiaryService{
         List<GptService.Prompt> chatLog = gptService.sendPrompt(request.getChatLog(), newPrompt);
         if (chatLog.isEmpty()) {
             log.warn("GPT 응답이 비어 있음. chatLog: {}\nprompt: {}", chatLog, newPrompt);
-            throw new RuntimeException("GPT 응답이 비어있음 ");
+            throw new GptCommunicationException("GPT 응답이 비어있음 ");
         }
         String newContent = chatLog.get(chatLog.size() - 1).getContent();
         return new DiaryChatResponse(newContent, chatLog);
@@ -128,5 +135,33 @@ public class DiaryServiceImpl implements DiaryService{
     public VisitedCourseWithoutDiaryResponse findVisitedCourseWithoutDiaryByUserId(long userId) {
         List<VisitedCourseSummary> result = visitedCourseRepository.findVisitedCourseWithoutDiaryByUserId(userId);
         return new VisitedCourseWithoutDiaryResponse(result);
+    }
+
+    @Override
+    public DiaryChatResponse insertRegeneration(long userId, DiaryRegenerationRequest request) {
+        // answer로 프롬프트 생성
+        String feedback = request.getFeedback();
+        if(feedback == null) {
+            // 피드백이 없는 경우 들어갈 기본 피드백
+            feedback = defaultFeedbackPrompt;
+        }
+        GptService.Prompt newPrompt = buildRegenerationPrompt(feedback);
+        List<GptService.Prompt> chatLog = gptService.sendPrompt(request.getChatLog(), newPrompt);
+        if (chatLog.isEmpty()) {
+            log.warn("GPT 응답이 비어 있음. chatLog: {}\nprompt: {}", chatLog, newPrompt);
+            throw new GptCommunicationException("GPT 응답이 비어있음 ");
+        }
+        String newContent = chatLog.get(chatLog.size() - 1).getContent();
+        if(!newContent.endsWith("<END>")) {
+            throw new GptCommunicationException("GPT 응답에 <END> 토큰이 누락");
+        }
+        return new DiaryChatResponse(newContent, chatLog);
+    }
+
+    public GptService.Prompt buildRegenerationPrompt(String feedback) {
+        String regenerationPromptWithFeedback = PromptTemplate.of(regenerationPrompt)
+                .with("feedback", feedback)
+                .build();
+        return new GptService.Prompt("user", regenerationPromptWithFeedback);
     }
 }
