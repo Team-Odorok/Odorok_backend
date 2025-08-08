@@ -27,7 +27,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 //H2작업 설정
-@ActiveProfiles("test")
 @DataJpaTest
 @Import(QueryDslConfig.class)
 @EntityScan("com.odorok.OdorokApplication")
