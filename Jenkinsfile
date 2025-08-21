@@ -2,16 +2,17 @@ pipeline {
   agent any
   options {
     timestamps()
-    ansiColor('xterm')
+    // ansiColor('xterm')  ← 제거
   }
+
   environment {
-    BRANCH        = 'test'
-    IMAGE_NAME    = 'odorok-backend'
-    IMAGE_TAG     = 'latest'
-    IMAGE         = "${IMAGE_NAME}:${IMAGE_TAG}"
-    CONTAINER     = 'odorok-container'
-    HOST_PORT     = '8080'        // 호스트에서 열 포트
-    APP_PORT      = '8080'        // 컨테이너 내부 앱 포트
+    BRANCH     = 'test'
+    IMAGE_NAME = 'odorok-backend'
+    IMAGE_TAG  = 'latest'
+    IMAGE      = "${IMAGE_NAME}:${IMAGE_TAG}"
+    CONTAINER  = 'odorok-container'
+    HOST_PORT  = '8080'
+    APP_PORT   = '8080'
   }
 
   stages {
@@ -35,19 +36,13 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        sh '''
-          set -e
-          docker build -t "${IMAGE}" .
-        '''
+        sh 'docker build -t "${IMAGE}" .'
       }
     }
 
     stage('Stop & Remove Old Container') {
       steps {
-        sh '''
-          # 기존 컨테이너 있으면 강제 종료/삭제 (없어도 에러 안나게)
-          docker rm -f "${CONTAINER}" >/dev/null 2>&1 || true
-        '''
+        sh 'docker rm -f "${CONTAINER}" >/dev/null 2>&1 || true'
       }
     }
 
@@ -67,7 +62,6 @@ pipeline {
     stage('Health Check') {
       steps {
         sh '''
-          # 간단 헬스체크 (필요시 경로 수정)
           for i in {1..20}; do
             if curl -fsS "http://127.0.0.1:${HOST_PORT}/actuator/health" >/dev/null 2>&1; then
               echo "Health OK"
