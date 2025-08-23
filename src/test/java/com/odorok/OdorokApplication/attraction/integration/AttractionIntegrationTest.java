@@ -13,6 +13,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.LinkedHashMap;
@@ -23,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(AttractionTestDataConfiguration.class)
+@ActiveProfiles("test")
+@Sql("/sql/attraction-test-data.sql")
 public class AttractionIntegrationTest {
     @LocalServerPort
     private Integer LOCAL_PORT;
@@ -73,7 +77,7 @@ public class AttractionIntegrationTest {
     public void 명소_상세_조회에_성공한다() {
         String url = UriComponentsBuilder.fromUriString(COMMON_URL).port(LOCAL_PORT)
                 .path(ATTRACTION_DETAIL_PATH)
-                .queryParam("attractionId", "56644")
+                .queryParam("attractionId", "125266")
                 .toUriString();
 
         ResponseRoot root = restTemplate.getForObject(url, ResponseRoot.class);

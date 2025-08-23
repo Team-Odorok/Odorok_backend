@@ -2,14 +2,12 @@ server:
   port: 8080
 
 spring:
+  config:
+    import:
+      - classpath:application-secret.yml
+      - classpath:application-gpt-system.yml
   jackson :
   #property-naming-strategy: SNAKE_CASE
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/odorok_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: odorok
-    password: odorok_104
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -27,21 +25,6 @@ spring:
   security:
     oauth2:
       client:
-        registration:
-          kakao:
-            client-id: 45eacdab5ed4b96bd7e886be38f2ca16
-            client-secret:  XQZZwR5QBFS6j7FVpSS0ls7vq0Qi40wC
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            scope:
-              - profile_nickname
-              - profile_image
-              - account_email
-              - name
-              - gender
-              - age_range
-              - birthday
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -53,25 +36,13 @@ spring:
     expiration: 600000       # access token ?? ?? (?)
     refresh-token:
       expiration: 1000008000    # refresh token ?? ?? (7? = 60*24*7)
-    secret: qoiicio30973jaklc8hiewq983rj2kfd9is0apt89gi4eygropqi43902-qua(IO:erwjuaI93EQ
-  config:
-    import: classpath:application-gpt-system.yml
 
 logging:
   level:
     com.odorok: DEBUG  # ??? ??? ?? ?? ???
 
-external:
-  keys :
-    durunubi : "rQx%2BS5%2FWi2FV6oAxJuQsxF7qhTlmydoiY4sDTcMNGV4e1%2Bj957sPHX4FNbFn%2F5zaKk6%2BrFVgXQU4N3fVyMDBgA%3D%3D"
-    kakao :
-      rest-key : "4e89e1f8af4f79761ea37f4ffed67aac"
-    gpt : "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"
 cloud:
   aws:
-    credentials:
-      access-key: AKIA4SDY6XQJ4AACWA3M
-      secret-key: 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
     s3:
       bucket: ssafytripbucket
       region: ap-northeast-2
@@ -98,4 +69,3 @@ springdoc:
     path: /odorokapi-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
-
