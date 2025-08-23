@@ -114,7 +114,7 @@ pipeline {
         }
       }
     }
-
+  }
   post {
     failure {
       echo 'Build failed. Showing last docker logs (if container exists).'
