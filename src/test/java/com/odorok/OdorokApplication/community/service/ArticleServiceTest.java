@@ -4,12 +4,16 @@ import com.odorok.OdorokApplication.community.dto.request.ArticleRegistRequest;
 import com.odorok.OdorokApplication.community.dto.request.ArticleSearchCondition;
 import com.odorok.OdorokApplication.community.dto.request.ArticleUpdateRequest;
 import com.odorok.OdorokApplication.community.dto.request.CommentRegistRequest;
+import com.odorok.OdorokApplication.community.dto.response.ArticleDetail;
+import com.odorok.OdorokApplication.community.dto.response.ArticleSearchResponse;
 import com.odorok.OdorokApplication.community.dto.response.ArticleSummary;
 import com.odorok.OdorokApplication.community.repository.ArticleRepository;
 import com.odorok.OdorokApplication.community.repository.CommentRepository;
+import com.odorok.OdorokApplication.community.repository.DiseaseRepository;
 import com.odorok.OdorokApplication.community.repository.LikeRepository;
 import com.odorok.OdorokApplication.domain.Like;
 import com.odorok.OdorokApplication.draftDomain.Article;
+import com.odorok.OdorokApplication.draftDomain.Disease;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +47,8 @@ class ArticleServiceTest {
     LikeRepository likeRepository;
     @Mock
     CommentRepository commentRepository;
+    @Mock
+    DiseaseRepository diseaseRepository;
     @InjectMocks
     ArticleServiceImpl articleService;
 
@@ -53,25 +59,21 @@ class ArticleServiceTest {
         List<ArticleSummary> summaries = new ArrayList<>(List.of(new ArticleSummary(
                 1L, // id
                 "Sample Title",
-                "Sample content for the article.",
                 now, // createdAt
                 10,
                 100,
                 5,
                 0,
                 false,
-                123L,
-                45,
                 "testuser"
         )));
         ArticleSearchCondition cond = new ArticleSearchCondition();
-        cond.setCategory(0);
         cond.setSort("likeCount");
         cond.setPageNum(1);
         //when
-        when(articleRepository.findByCondition(cond)).thenReturn(summaries);
+        when(articleRepository.findByCondition(cond)).thenReturn(new ArticleSearchResponse(summaries,1,1L,1L,1,1,1,1));
         //then
-        assertEquals(summaries,articleService.findByCondition(cond));
+        assertEquals(summaries,articleService.findByCondition(cond).getArticles());
         verify(articleRepository, times(1)).findByCondition(cond);
     }
 
@@ -110,9 +112,9 @@ class ArticleServiceTest {
     @Test
     void 게시글_조회_성공(){
         //given
-        Article article = Article.builder().userId(1L).content("gg").id(15L).build();
+        ArticleDetail article = ArticleDetail.builder().userId(1L).content("gg").id(15L).build();
         //when
-        when(articleRepository.getById(15L)).thenReturn(article);
+        when(articleRepository.findArticleDetailById(15L)).thenReturn(article);
         //then
         assertEquals(article,articleService.findByArticleId(15L));
     }
@@ -120,7 +122,7 @@ class ArticleServiceTest {
     @Test
     void 게시글_조회_실패(){
         //when
-        when(articleRepository.getById(14L)).thenThrow(new EntityNotFoundException("게시물이 존재하지 않습니다"));
+        when(articleRepository.findArticleDetailById(14L)).thenThrow(new EntityNotFoundException("게시물이 존재하지 않습니다"));
         //then
         assertThrows(EntityNotFoundException.class, ()-> articleService.findByArticleId(14L));
     }
@@ -165,5 +167,16 @@ class ArticleServiceTest {
         Long userId = 1L;
         articleService.registComment(articleId,request,userId);
         verify(commentRepository,times(1)).save(any());
+    }
+    @Test
+    void 질병_목록_불러오기_성공(){
+        //given
+        List<Disease> list = List.of(Disease.builder().id(1L).name("당뇨").build());
+        //when
+        when(diseaseRepository.findAll()).thenReturn(list);
+        //then
+        articleService.findAllDisease();
+        verify(diseaseRepository,times(1)).findAll();
+        assertEquals(list,diseaseRepository.findAll());
     }
 }

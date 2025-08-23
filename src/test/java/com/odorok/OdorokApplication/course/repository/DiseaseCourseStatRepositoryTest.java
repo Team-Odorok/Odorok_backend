@@ -1,7 +1,6 @@
 package com.odorok.OdorokApplication.course.repository;
 
 import com.odorok.OdorokApplication.commons.querydsl.config.QueryDslConfig;
-import com.odorok.OdorokApplication.course.domain.DiseaseCourseStat;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
