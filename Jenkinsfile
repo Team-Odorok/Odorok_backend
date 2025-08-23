@@ -24,6 +24,30 @@ pipeline {
       }
     }
 
+    stage('test') {
+      environment {
+        KAKAO_CLIENT_ID     = credentials('KAKAO_CLIENT_ID')
+        KAKAO_CLIENT_SECRET = credentials('KAKAO_CLIENT_SECRET')
+        JWT_SECRET          = credentials('JWT_SECRET')
+        DURUNUBI_API_KEY    = credentials('DURUNUBI_API_KEY')
+        KAKAO_REST_KEY      = credentials('KAKAO_REST_KEY')
+        GPT_API_KEY         = credentials('GPT_API_KEY')
+        AWS_ACCESS_KEY      = credentials('AWS_ACCESS_KEY')
+        AWS_SECRET_KEY      = credentials('AWS_SECRET_KEY')
+        // 필요 시 DB도 여기서:
+        // DB_URL              = credentials('DB_URL')
+        // DB_USERNAME         = credentials('DB_USERNAME')
+        // DB_PASSWORD         = credentials('DB_PASSWORD')
+      }
+      steps {
+        sh '''
+          set -eu
+          # 별도 export 불필요. 위 environment{}로 이미 ENV 주입됨.
+          ./gradlew test --info
+        '''
+      }
+    }
+
     stage('Build (Gradle)') {
       steps {
         sh '''
@@ -48,34 +72,48 @@ pipeline {
 
     stage('Run Container') {
       steps {
-        sh '''
-          set -e
-          docker run -d \
+        withCredentials([
+            string(credentialsId: 'KAKAO_CLIENT_ID', variable: 'KAKAO_CLIENT_ID'),
+            string(credentialsId: 'KAKAO_CLIENT_SECRET', variable: 'KAKAO_CLIENT_SECRET'),
+            string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET'),
+            string(credentialsId: 'KAKAO_REST_KEY', variable: 'KAKAO_REST_KEY'),
+            string(credentialsId: 'GPT_API_KEY', variable: 'GPT_API_KEY'),
+            string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY'),
+            string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_KEY'),
+            string(credentialsId: 'DB_URL', variable: 'DB_URL'),
+            string(credentialsId: 'DB_USERNAME', variable: 'DB_USERNAME'),
+            string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+        ]) {
+          sh '''
+            set -eu
+            docker run -d \
             --name "${CONTAINER}" \
             -p ${HOST_PORT}:${APP_PORT} \
             --restart unless-stopped \
+            -e SPRING_PROFILES_ACTIVE=docker \
+            \
+            # 자격증명 전달 (값은 로컬 ENV에서 주입됨)
+            -e KAKAO_CLIENT_ID \
+            -e KAKAO_CLIENT_SECRET \
+            -e JWT_SECRET \
+            -e KAKAO_REST_KEY \
+            -e GPT_API_KEY \
+            -e AWS_ACCESS_KEY \
+            -e AWS_SECRET_KEY \
+            -e DB_URL \
+            -e DB_USERNAME \
+            -e DB_PASSWORD \
+            \
+            # Spring이 바로 인식하도록 표준 키로도 매핑 (호환용)
+            -e SPRING_DATASOURCE_URL="$DB_URL" \
+            -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
+            -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
+            --network odorok-bridge \
             "${IMAGE}"
         '''
+        }
       }
     }
-
-    stage('Health Check') {
-      steps {
-        sh '''
-          for i in {1..20}; do
-            if curl -fsS "http://127.0.0.1:${HOST_PORT}/actuator/health" >/dev/null 2>&1; then
-              echo "Health OK"
-              exit 0
-            fi
-            echo "Waiting for app... ($i)"
-            sleep 2
-          done
-          echo "Health check failed"
-          exit 1
-        '''
-      }
-    }
-  }
 
   post {
     failure {

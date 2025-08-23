@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
 @Import({QueryDslConfig.class, AttractionTestDataConfiguration.class})
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@Sql("/sql/attraction-test-data.sql")
 class AttractionRepositoryTest {
     @Autowired
     private AttractionRepository attractionRepository;
@@ -30,7 +33,7 @@ class AttractionRepositoryTest {
     @Test
     public void 시도_시군구_코드_컨텐츠타입아이디로_명소조회에_성공한다() {
         List<Attraction> result = attractionRepository.findBySidoCodeAndSigunguCodeAndContentTypeId(
-                SEOUL_SIDO_CODE, SEOUL_GANNAMGU_SIGUNGU_CODE, contentTypeMap.get("쇼핑")
+                1, 20, 14
         );
 
         assertThat(result.size()).isNotZero();

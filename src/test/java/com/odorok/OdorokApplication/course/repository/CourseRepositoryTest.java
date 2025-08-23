@@ -13,7 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
@@ -22,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@Sql("/sql/attraction-test-data.sql")
 class CourseRepositoryTest {
 
     @Autowired
@@ -30,7 +33,7 @@ class CourseRepositoryTest {
 
     @Test
     public void 지역_코드로_코스_조회에_성공한다() {
-        int sidoCode = 38, sigunguCode = 2;
+        int sidoCode = 1, sigunguCode = 20;
         Assertions.assertThat(courseRepository.findBySidoCodeAndSigunguCode(sidoCode, sigunguCode, Pageable.ofSize(10)).getContent().size()).isLessThanOrEqualTo(10);
     }
 
