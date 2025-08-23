@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @EntityScan("com.odorok.OdorokApplication")
 @EnableJpaRepositories(basePackageClasses = {ArticleRepository.class,UserRepository.class,TierRepository.class,ProfileRepository.class})
 @Transactional
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class ArticleRepositoryTest {
 
     @Autowired
