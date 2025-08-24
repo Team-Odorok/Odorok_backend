@@ -88,10 +88,10 @@ public class SecurityConfig {
                         "/api/courses/region",
                         "/api/courses/top",
                         "/h2-console/**",
-                        "/odorokapi-ui.html",
-                        "/swagger-ui/**", // swagger-ui 관련 모든 경로 허용
-                        "/api-docs/json/**",  // openapi v3 문서 경로 허용
-                        "/swagger-resources/**").permitAll()
+                        "/api/odorokapi-ui.html",
+                        "/api/swagger-ui/**", // swagger-ui 관련 모든 경로 허용
+                        "/api/api-docs/json/**",  // openapi v3 문서 경로 허용
+                        "/api/swagger-resources/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
 

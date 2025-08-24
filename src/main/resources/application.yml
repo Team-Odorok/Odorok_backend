@@ -61,11 +61,11 @@ springdoc:
   cache:
     disabled: true
   api-docs:
-    path: /api-docs/json
+    path: /api/api-docs/json
     groups:
       enabled: true
   swagger-ui:
     enabled: true
-    path: /odorokapi-ui.html
+    path: /api/odorokapi-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
