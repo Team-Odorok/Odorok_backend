@@ -5,14 +5,18 @@ import com.odorok.OdorokApplication.community.dto.request.ArticleRegistRequest;
 import com.odorok.OdorokApplication.community.dto.request.ArticleSearchCondition;
 import com.odorok.OdorokApplication.community.dto.request.ArticleUpdateRequest;
 import com.odorok.OdorokApplication.community.dto.request.CommentRegistRequest;
+import com.odorok.OdorokApplication.community.dto.response.ArticleDetail;
+import com.odorok.OdorokApplication.community.dto.response.ArticleSearchResponse;
 import com.odorok.OdorokApplication.community.dto.response.ArticleSummary;
 import com.odorok.OdorokApplication.community.dto.response.CommentSummary;
 import com.odorok.OdorokApplication.community.repository.ArticleRepository;
 import com.odorok.OdorokApplication.community.repository.CommentRepository;
+import com.odorok.OdorokApplication.community.repository.DiseaseRepository;
 import com.odorok.OdorokApplication.community.repository.LikeRepository;
 import com.odorok.OdorokApplication.domain.Comment;
 import com.odorok.OdorokApplication.domain.Like;
 import com.odorok.OdorokApplication.draftDomain.Article;
+import com.odorok.OdorokApplication.draftDomain.Disease;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,7 @@ public class ArticleServiceImpl implements ArticleService{
     private final ArticleTransactionService articleTransactionService;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final DiseaseRepository diseaseRepository;
 
     @Override
     public void insertArticle(ArticleRegistRequest request, List<MultipartFile> images, Long userId) {
@@ -46,14 +51,15 @@ public class ArticleServiceImpl implements ArticleService{
     }
 
     @Override
-    public List<ArticleSummary> findByCondition(ArticleSearchCondition condition) {
+    public ArticleSearchResponse findByCondition(ArticleSearchCondition condition) {
+        //(현재 엔드페이지를 조회할 수 있도록) 바꿀것
         return articleRepository.findByCondition(condition);
     }
 
     @Override
-    public Article findByArticleId(Long articleId) {
-        Article article = articleRepository.getById(articleId);
-        return article;
+    public ArticleDetail findByArticleId(Long articleId) {
+        ArticleDetail articleDetail = articleRepository.findArticleDetailById(articleId);
+        return articleDetail;
     }
 
     @Override
@@ -92,6 +98,10 @@ public class ArticleServiceImpl implements ArticleService{
     public void registComment(Long articleId, CommentRegistRequest request, Long userId) {
         Comment comment = Comment.builder().articleId(articleId).content(request.getContent()).userId(userId).build();
         commentRepository.save(comment);
+    }
+    @Override
+    public List<Disease> findAllDisease() {
+        return diseaseRepository.findAll();
     }
 
 }

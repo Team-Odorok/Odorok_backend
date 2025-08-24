@@ -50,7 +50,7 @@ public class Course implements JsonSettable {
     @Column(name = "contents")
     private String contents;
 
-    @Column(name = "traveler_info")
+    @Column(name = "traveler_info", columnDefinition = "TEXT")
     private String travelerInfo;
 
     @Column(name = "sido_code")
