@@ -80,14 +80,13 @@ public class SecurityConfig {
 
         // 도달시 SecurityContext의 여부와 권한을 검증할지를 설정한다.
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/refresh-token",
+                .requestMatchers("/api/auth/**",
                         "/api/attractions/**",
                         "/api/regions/**",
                         "/api/courses",
                         "/api/courses/detail",
                         "/api/courses/region",
                         "/api/courses/top",
-                        "/signup",
                         "/h2-console/**",
                         "/odorokapi-ui.html",
                         "/swagger-ui/**", // swagger-ui 관련 모든 경로 허용
@@ -100,7 +99,7 @@ public class SecurityConfig {
 
         // 커스텀 필터를 addFilterAt 해줘야 함.
         CustomLoginFilter customLoginFilter = new CustomLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION, authService);
-        customLoginFilter.setFilterProcessesUrl("/login");
+        customLoginFilter.setFilterProcessesUrl("/api/auth/login");
 
         http.addFilterAt(
                 customLoginFilter,
@@ -111,7 +110,7 @@ public class SecurityConfig {
         // 인증 필터에서 통과시킬 경로를 설정한다.
         Set<String> allowedUris = new HashSet<>();
         String[] uris = {"/api/courses",
-                "/refresh-token",
+                "/api/refresh-token",
                 "/api/courses/detail",
                 "/api/courses/region",
                 "/api/courses/top",
@@ -132,7 +131,7 @@ public class SecurityConfig {
         http.sessionManagement(auth -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 액세스 토큰 블랙 리스트를 만들기 위한 로그아웃 정의
-        http.logout(auth -> auth.logoutUrl("/logout")
+        http.logout(auth -> auth.logoutUrl("/api/auth/logout")
                 .addLogoutHandler(authService)
                 .logoutSuccessHandler((request, response, authentication) ->
                 {
