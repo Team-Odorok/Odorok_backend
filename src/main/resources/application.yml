@@ -33,7 +33,7 @@ spring:
             user-name-attribute: id
 
   jwt:
-    expiration: 600000       # access token ?? ?? (?)
+    expiration: 6000000000       # access token ?? ?? (?)
     refresh-token:
       expiration: 1000008000    # refresh token ?? ?? (7? = 60*24*7)
 
