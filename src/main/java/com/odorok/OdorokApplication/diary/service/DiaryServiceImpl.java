@@ -55,7 +55,7 @@ public class DiaryServiceImpl implements DiaryService{
     @Value("${gpt.generation-finalize-diary-prompt}")
     private String generationFinalizeDiaryPrompt;
     // 일지 생성권 itemId 캐싱.
-    @PostConstruct
+//    @PostConstruct
     public void initDiaryItemId() {
         this.diaryPermissionItemId = itemRepository.findByTitle("일지 생성권")
                 .map(Item::getId)
