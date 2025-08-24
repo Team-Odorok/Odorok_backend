@@ -86,13 +86,19 @@ pipeline {
         ]) {
           sh '''
             set -eu
+            # 네트워크 보장 (없으면 생성)
+            docker network inspect odorok-bridge >/dev/null 2>&1 || docker network create odorok-bridge
+
+            # 기존 컨테이너 정리(혹시 남아있다면)
+            docker rm -f "${CONTAINER}" >/dev/null 2>&1 || true
+
+            # 자격증명은 환경에서 전달(-e KEY 형태면 현재 셸의 값이 그대로 전달됨)
             docker run -d \
             --name "${CONTAINER}" \
             -p ${HOST_PORT}:${APP_PORT} \
             --restart unless-stopped \
+            --network odorok-bridge \
             -e SPRING_PROFILES_ACTIVE=docker \
-            \
-            # 자격증명 전달 (값은 로컬 ENV에서 주입됨)
             -e KAKAO_CLIENT_ID \
             -e KAKAO_CLIENT_SECRET \
             -e JWT_SECRET \
@@ -103,12 +109,9 @@ pipeline {
             -e DB_URL \
             -e DB_USERNAME \
             -e DB_PASSWORD \
-            \
-            # Spring이 바로 인식하도록 표준 키로도 매핑 (호환용)
             -e SPRING_DATASOURCE_URL="$DB_URL" \
             -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
             -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
-            --network odorok-bridge \
             "${IMAGE}"
         '''
         }
