@@ -1,10 +1,7 @@
 package com.odorok.OdorokApplication.commons.handler;
 
-import com.odorok.OdorokApplication.commons.exception.BadRequestException;
-import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
-import com.odorok.OdorokApplication.commons.exception.NotFoundException;
+import com.odorok.OdorokApplication.commons.exception.*;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
-import com.odorok.OdorokApplication.commons.exception.FileUploadException;
 import com.odorok.OdorokApplication.course.exception.ScheduledDateOverlappingException;
 import com.odorok.OdorokApplication.region.exception.InvalidSidoCodeException;
 import jakarta.persistence.Access;
@@ -127,4 +124,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(fail(e.getMessage()));
     }
+
+    @ExceptionHandler(AlreadyCheckedInException.class)
+    public ResponseEntity<ResponseRoot<Void>> handleOverlappedAttendance(AlreadyCheckedInException e) {
+        log.error("이미 출석체크가 완료되었음 - {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(fail(e.getMessage())); 
+    }
+
 }
