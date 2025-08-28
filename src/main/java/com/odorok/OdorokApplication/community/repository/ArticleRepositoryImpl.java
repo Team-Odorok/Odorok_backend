@@ -79,7 +79,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         if (idList.isEmpty()) {
             return new ArticleSearchResponse(
                     Collections.emptyList(),
-                    calcEndPageInBlock(cond),
+                    calcEndPageInBlock(cond,null),
                     null,  // firstId
                     null,  // lastId
                     null,  // firstLike
@@ -119,7 +119,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         Integer firstView = rows.stream().map(ArticleSummary::getViewCount).max(Integer::compareTo).orElse(null);
         Integer lastView  = rows.stream().map(ArticleSummary::getViewCount).min(Integer::compareTo).orElse(null);
 
-        int endPage = calcEndPageInBlock(cond);
+        int endPage = calcEndPageInBlock(cond,lastId);
 
         return new ArticleSearchResponse(rows, endPage, firstId, lastId, firstLike, lastLike, firstView, lastView);
     }
@@ -241,7 +241,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return ret;
     }
 
-    private int calcEndPageInBlock(ArticleSearchCondition cond) {
+    private int calcEndPageInBlock(ArticleSearchCondition cond,Long lastId) {
         int pageSize = (cond.getPageSize() == null || cond.getPageSize() <= 0) ? 50 : cond.getPageSize();
         int current = cond.getCurrentPageNum();
         int blockEnd = ((current + 9) / 10) * 10;
@@ -249,19 +249,20 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         if (pagesPossible <= 0) return current;
 
         // 3→5 조건 재사용: id < lastId (lastId 없으면 capRows=0으로 처리)
-        if (cond.getLastId() == null) return current; // 최초 입장 등은 더 모를 수 있음(확실하지 않음)
-
-        Long count = queryFactory
-                .select(article.id.count())
+        //if (cond.getLastId() == null) return current; // 최초 입장 등은 더 모를 수 있음(확실하지 않음)
+        if(lastId==null){
+            return current;
+        }
+        List<Long> count = queryFactory
+                .select(article.id)
                 .from(article)
                 .where(andAll(
                         diseaseEqOrNull(cond.getDiseaseId()),
-                        article.id.lt(cond.getLastId())
-                ))
-                .fetchOne();
+                        article.id.lt(lastId)
+                )).limit(pageSize*pagesPossible).fetch();
 
         long capRows = (long) pagesPossible * pageSize;
-        long rowsCapped = Math.min(count == null ? 0L : count, capRows);
+        long rowsCapped = Math.min(count == null ? 0L : count.size(), capRows);
         int addPages = (int) Math.ceil(rowsCapped / (double) pageSize);
 
         return current + addPages;
