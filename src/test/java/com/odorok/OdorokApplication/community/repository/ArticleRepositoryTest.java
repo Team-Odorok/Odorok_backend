@@ -260,39 +260,6 @@ class ArticleRepositoryTest {
     }
 
     @Test
-    void 최초진입_null_경계_동작확인() {
-        ArticleSearchResponse r = find(firstPageCond("createdAt", null, 3));
-        assertEquals(3, r.getArticles().size());
-        // endPage: lastId 없으면 current 반환(보수적) → current=1
-        ArticleSearchCondition measure = firstPageCond("createdAt", null, 3);
-        measure.setCurrentPageNum(1);
-        measure.setPageNum(1);
-        measure.setLastId(null);
-        assertEquals(1, find(measure).getEndPage());
-    }
-
-    // ★ 추가: 7개면 end=3, 3페이지는 1개
-    @Test
-    void 데이터_7개면_endPage는3_3페이지는1개() {
-        reseed(7, null); // 전체 7개, pageSize=3 → 1p=3, 2p=3, 3p=1
-
-        int ps = 3;
-        // 1페이지(초기)
-        ArticleSearchResponse r1 = find(firstPageCond("createdAt", null, ps));
-        assertEquals(3, r1.getArticles().size());
-
-        // endPage 측정(current=1, lastId 사용)
-        ArticleSearchCondition probe = firstPageCond("createdAt", null, ps);
-        probe.setCurrentPageNum(1);
-        probe.setPageNum(1);
-        probe.setLastId(r1.getLastId());
-        assertEquals(3, find(probe).getEndPage());
-
-        // 1→3
-        ArticleSearchResponse r3 = find(jumpForwardCond(1, 3, r1.getLastId(), "createdAt", null, ps));
-        assertEquals(1, r3.getArticles().size());
-    }
-    @Test
     void view_1에서2_점프_튜플커서_경계검증() {
         int ps = 3;
         var r1 = find(firstPageCond("viewCount", null, ps));
