@@ -40,7 +40,6 @@ public class ArticleImageServiceImpl implements ArticleImageService{
         articleImageRepository.saveAll(images);
     }
 
-    //수동 롤백 작업용
     @Override
     public void deleteImages(List<String> urls) {
         s3Service.deleteMany(urls);
