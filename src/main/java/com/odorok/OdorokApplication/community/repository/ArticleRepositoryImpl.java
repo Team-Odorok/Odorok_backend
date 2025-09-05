@@ -191,7 +191,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                         article.notice,
                         article.userId,
                         user.nickname,
-                        tier.title))
+                        tier.title
+                        ))
                 .from(article)
                 .join(user).on(article.userId.eq(user.id))
                 .join(profile).on(article.userId.eq(profile.userId))

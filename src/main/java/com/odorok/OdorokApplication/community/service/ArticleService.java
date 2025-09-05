@@ -17,11 +17,12 @@ import java.util.List;
 public interface ArticleService {
     public ArticleSearchResponse findByCondition(ArticleSearchCondition condition);
     public void insertArticle(ArticleRegistRequest request, List<MultipartFile> images, Long userId);
-    public ArticleDetail findByArticleId(Long articleId);
+    public ArticleDetail findByArticleId(Long articleId,Long userId);
     public void deleteArticle(Long articleId);
     public void updateArticle(ArticleUpdateRequest request, List<MultipartFile> images, Long articleId,Long userId);
     public void updateLike(Long articleId,Long userId);
     public List<CommentSummary> findCommentsByArticleId(Long articleId);
     public void registComment(Long articleId,CommentRegistRequest request,Long userId);
     public List<Disease> findAllDisease();
+    public void updateUnlike(Long articleId, Long userId);
 }

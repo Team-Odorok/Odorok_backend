@@ -17,6 +17,7 @@ import com.odorok.OdorokApplication.domain.Comment;
 import com.odorok.OdorokApplication.domain.Like;
 import com.odorok.OdorokApplication.draftDomain.Article;
 import com.odorok.OdorokApplication.draftDomain.Disease;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,8 +59,13 @@ public class ArticleServiceImpl implements ArticleService{
     }
 
     @Override
-    public ArticleDetail findByArticleId(Long articleId) {
+    public ArticleDetail findByArticleId(Long articleId,Long userId) {
         ArticleDetail articleDetail = articleRepository.findArticleDetailById(articleId);
+        if(articleDetail==null){
+            throw new EntityNotFoundException("게시물 존재하지 않음");
+        }
+        Optional<Like> like = likeRepository.findByArticleIdAndUserId(articleId,userId);
+        articleDetail.setIsLikedByUser(!like.isEmpty());
         return articleDetail;
     }
 
@@ -102,6 +109,17 @@ public class ArticleServiceImpl implements ArticleService{
     @Override
     public List<Disease> findAllDisease() {
         return diseaseRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void updateUnlike(Long articleId, Long userId) {
+        //행 삭제가 되면 update를 이용해서 락을 거는방식으로 감소시킬것
+        Long count = likeRepository.deleteByArticleIdAndUserId(articleId,userId);
+        if(count==0){
+            return;
+        }
+        articleRepository.decrementLikeCount(articleId);
     }
 
 }
