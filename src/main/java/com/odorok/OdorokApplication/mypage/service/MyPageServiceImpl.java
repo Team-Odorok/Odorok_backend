@@ -1,12 +1,17 @@
 package com.odorok.OdorokApplication.mypage.service;
 
+import com.odorok.OdorokApplication.community.repository.DiseaseRepository;
 import com.odorok.OdorokApplication.community.repository.ProfileRepository;
 import com.odorok.OdorokApplication.course.repository.UserRepository;
+import com.odorok.OdorokApplication.domain.HealthInfo;
 import com.odorok.OdorokApplication.domain.User;
 import com.odorok.OdorokApplication.draftDomain.Profile;
 import com.odorok.OdorokApplication.draftDomain.Tier;
+import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
+import com.odorok.OdorokApplication.mypage.repository.HealthInfoRepository;
 import com.odorok.OdorokApplication.mypage.repository.TierRepository;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +29,8 @@ public class MyPageServiceImpl implements MyPageService{
     private final ProfileRepository profileRepository;
     private final MyPageImageService myPageImageService;
     private final MyPageTransactionService myPageTransactionService;
+    private final HealthInfoRepository healthInfoRepository;
+    private final DiseaseRepository diseaseRepository;
     @Override
     public UserInfoResponse findUserInfo(Long userId) {
         return profileRepository.findProfileByUserId(userId);
@@ -46,5 +53,31 @@ public class MyPageServiceImpl implements MyPageService{
         }
         //이후 트랜잭셔널하게 유저와 프로필의 정보를 변경해줄 것
         myPageTransactionService.updateUserProfile(id,request);
+    }
+
+    @Override
+    public UserHealthInfoResponse findUserHealthInfo(Long id) {
+        HealthInfo healthInfo = healthInfoRepository.findByUserId(id);
+        return UserHealthInfoResponse.builder().gender(healthInfo.getGender())
+                .height(healthInfo.getHeight())
+                .weight(healthInfo.getWeight())
+                .age(healthInfo.getAge())
+                .smoking(healthInfo.getSmoking())
+                .drinkPerWeek(healthInfo.getDrinkPerWeek())
+                .exercisePerWeek(healthInfo.getExercisePerWeek())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateUserHealthInfo(Long id, HealthProfileUpdateRequest healthProfileUpdateRequest) {
+        HealthInfo healthInfo = healthInfoRepository.findByUserId(id);
+        healthInfo.setGender(healthProfileUpdateRequest.getGender());
+        healthInfo.setHeight(healthProfileUpdateRequest.getHeight());
+        healthInfo.setWeight(healthProfileUpdateRequest.getWeight());
+        healthInfo.setAge(healthProfileUpdateRequest.getAge());
+        healthInfo.setSmoking(healthProfileUpdateRequest.getSmoking());
+        healthInfo.setDrinkPerWeek(healthProfileUpdateRequest.getDrinkPerWeek());
+        healthInfo.setExercisePerWeek(healthProfileUpdateRequest.getExercisePerWeek());
     }
 }

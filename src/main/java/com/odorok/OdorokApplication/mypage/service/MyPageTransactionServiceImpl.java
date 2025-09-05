@@ -22,7 +22,6 @@ public class MyPageTransactionServiceImpl implements MyPageTransactionService {
     public void updateUserProfile(Long id, ProfileUpdateRequest request) {
         User user = userRepository.findById(id).orElseThrow();
         user.setNickname(request.getNickName()); //닉네임 변경
-        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword())); //비밀번호 변경
         Profile userProfile = profileRepository.findByUserId(id).orElseThrow();
         userProfile.setSidoCode(request.getSidoCode()); //시도코드 변경
         userProfile.setSigunguCode(request.getSigunguCode()); //시군구코드 변경
