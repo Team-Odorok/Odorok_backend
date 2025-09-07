@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateReques
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
+import com.odorok.OdorokApplication.mypage.dto.response.UserStatisticResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface MyPageService {
     public void updateUserProfile(Long id, ProfileUpdateRequest request, List<MultipartFile> images);
     UserHealthInfoResponse findUserHealthInfo(Long id);
     void updateUserHealthInfo(Long id, HealthProfileUpdateRequest healthProfileUpdateRequest);
+
+    UserStatisticResponse searchUserStatistics(Long id);
 }
