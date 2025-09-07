@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class ProfileUpdateRequest {
     private String nickName;
-    private String password;
     private Integer sidoCode;
     private Integer sigunguCode;
     private Long diaryId;

@@ -80,7 +80,7 @@ public class OwnershipAspect {
         Long commentOwnerId = commentRepository.findById(commentId)
                 .orElseThrow(()->new EntityNotFoundException("댓글이 존재하지 않습니다"))
                 .getUserId();
-        if(currentUserId.equals(commentOwnerId)){
+        if(!currentUserId.equals(commentOwnerId)){
             throw new AccessDeniedException("해당 댓글의 소유자가 아닙니다.");
         }
 

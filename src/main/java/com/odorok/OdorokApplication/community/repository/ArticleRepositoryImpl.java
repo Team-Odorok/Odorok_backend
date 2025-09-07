@@ -79,7 +79,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         if (idList.isEmpty()) {
             return new ArticleSearchResponse(
                     Collections.emptyList(),
-                    calcEndPageInBlock(cond,null),
+                    1,
                     null,  // firstId
                     null,  // lastId
                     null,  // firstLike
@@ -119,7 +119,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         Integer firstView = rows.stream().map(ArticleSummary::getViewCount).max(Integer::compareTo).orElse(null);
         Integer lastView  = rows.stream().map(ArticleSummary::getViewCount).min(Integer::compareTo).orElse(null);
 
-        int endPage = calcEndPageInBlock(cond,lastId);
+        int endPage;
+        if (lastId == null || firstId == null) {
+            endPage = 1;
+        } else {
+            endPage = calcEndPageInBlock(cond, lastLike, lastView, lastId);
+        }
 
         return new ArticleSearchResponse(rows, endPage, firstId, lastId, firstLike, lastLike, firstView, lastView);
     }
@@ -186,7 +191,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                         article.notice,
                         article.userId,
                         user.nickname,
-                        tier.title))
+                        tier.title
+                        ))
                 .from(article)
                 .join(user).on(article.userId.eq(user.id))
                 .join(profile).on(article.userId.eq(profile.userId))
@@ -241,9 +247,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return ret;
     }
 
-    private int calcEndPageInBlock(ArticleSearchCondition cond,Long lastId) {
+    private int calcEndPageInBlock(ArticleSearchCondition cond,Integer lastLike,Integer lastView,Long lastId) {
         int pageSize = (cond.getPageSize() == null || cond.getPageSize() <= 0) ? 50 : cond.getPageSize();
-        int current = cond.getCurrentPageNum();
+        int current = cond.getPageNum();
         int blockEnd = ((current + 9) / 10) * 10;
         int pagesPossible = blockEnd - current;
         if (pagesPossible <= 0) return current;
@@ -256,16 +262,26 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         List<Long> count = queryFactory
                 .select(article.id)
                 .from(article)
-                .where(andAll(
-                        diseaseEqOrNull(cond.getDiseaseId()),
-                        article.id.lt(lastId)
-                )).limit(pageSize*pagesPossible).fetch();
+                .where(whereForRemaining(cond,lastLike,lastView,lastId)
+                ).limit(pageSize*pagesPossible).fetch();
 
         long capRows = (long) pagesPossible * pageSize;
         long rowsCapped = Math.min(count == null ? 0L : count.size(), capRows);
         int addPages = (int) Math.ceil(rowsCapped / (double) pageSize);
 
         return current + addPages;
+    }
+    private BooleanExpression whereForRemaining(ArticleSearchCondition cond,Integer lastLike,Integer lastView,Long lastId){
+        String sort = cond.getSort();
+        switch(sort){
+            case "viewCount":
+                return andAll(diseaseEqOrNull(cond.getDiseaseId()),(article.viewCount.lt(lastView).or(article.viewCount.eq(lastView).and(article.id.lt(lastId)))));
+            case "likeCount":
+                return andAll(diseaseEqOrNull(cond.getDiseaseId()),(article.likeCount.lt(lastLike).or(article.likeCount.eq(lastLike).and(article.id.lt(lastId)))));
+            case "createdAt":
+            default:
+                return andAll(diseaseEqOrNull(cond.getDiseaseId()),(article.id.lt(lastId)));
+        }
     }
 }
 
