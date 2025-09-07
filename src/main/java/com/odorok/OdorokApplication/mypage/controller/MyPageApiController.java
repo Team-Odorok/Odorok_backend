@@ -3,7 +3,9 @@ package com.odorok.OdorokApplication.mypage.controller;
 import com.odorok.OdorokApplication.commons.response.CommonResponseBuilder;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
 import com.odorok.OdorokApplication.community.dto.request.ArticleUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
 import com.odorok.OdorokApplication.mypage.service.MyPageService;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
@@ -44,5 +46,22 @@ public class MyPageApiController {
         Long id = user.getUserId();
         myPageService.updateUserProfile(id,request,images);
         return ResponseEntity.ok(CommonResponseBuilder.success("유저 정보를 성공적으로 변경했습니다"));
+    }
+    @Operation(summary = "유저 건강정보 조회", description = "유저 건강정보 조회가능")
+    @ApiResponse(responseCode = "200", description = "유저의 건강정보 반환됨")
+    @GetMapping("/userhealth")
+    public ResponseEntity<ResponseRoot<UserHealthInfoResponse>> searchUserHealthInfo(@AuthenticationPrincipal CustomUserDetails user){
+        Long id = user.getUserId();
+        UserHealthInfoResponse userHealthInfoResponse = myPageService.findUserHealthInfo(id);
+        return ResponseEntity.ok(CommonResponseBuilder.success("유저 건강정보 성공적으로 반환",userHealthInfoResponse));
+    }
+    @Operation(summary = "유저 건강정보 수정", description = "유저 건강정보 수정가능")
+    @ApiResponse(responseCode = "200", description = "유저의 건강정보 수정됨")
+    @PutMapping("/userhealth")
+    public ResponseEntity<ResponseRoot<Void>> updateUserHealthInfo(@AuthenticationPrincipal CustomUserDetails user,
+                                                                   @RequestBody HealthProfileUpdateRequest healthProfileUpdateRequest){
+        Long id = user.getUserId();
+        myPageService.updateUserHealthInfo(id,healthProfileUpdateRequest);
+        return ResponseEntity.ok(CommonResponseBuilder.success("유저 건강정보 성공적으로 수정"));
     }
 }

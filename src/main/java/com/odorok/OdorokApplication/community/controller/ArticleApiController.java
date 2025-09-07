@@ -48,8 +48,10 @@ public class ArticleApiController {
     @Operation(summary = "게시물 상세조회")
     @ApiResponse(responseCode = "200", description = "조회 성공시 게시물 정보가 전송됨")
     @GetMapping("/{articles-id}")
-    public ResponseEntity<ResponseRoot<ArticleDetail>> searchArticleDetail(@PathVariable("articles-id") Long articleId) {
-        ArticleDetail articleDetail = articleService.findByArticleId(articleId);
+    public ResponseEntity<ResponseRoot<ArticleDetail>> searchArticleDetail(@PathVariable("articles-id") Long articleId,
+                                                                           @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+        ArticleDetail articleDetail = articleService.findByArticleId(articleId,userId);
         return ResponseEntity.ok(CommonResponseBuilder.success("게시물 조회 성공", articleDetail));
     }
     @Operation(summary = "게시물 삭제", description = "게시물을 삭제함")
@@ -80,6 +82,16 @@ public class ArticleApiController {
         Long userId = user.getUserId();
         articleService.updateLike(articleId,userId);
         return ResponseEntity.ok(CommonResponseBuilder.success("좋아요가 등록되었습니다."));
+    }
+    @Operation(summary = "게시물 좋아요 취소", description = "게시믈에 단 좋아요를 취소할 수 있음")
+    @ApiResponse(responseCode = "200", description = "data없음")
+    @PostMapping("/{articles-id}/unlikes")
+    public ResponseEntity<ResponseRoot<Void>> updateArticleUnlike(@PathVariable("articles-id") Long articleId,
+                                                                @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        articleService.updateUnlike(articleId,userId);
+        return ResponseEntity.ok(CommonResponseBuilder.success("좋아요가 취소되었습니다."));
     }
     @Operation(summary = "게시물 댓글 조회", description = "게시물에 등록된 댓글을 조회함")
     @ApiResponse(responseCode = "200", description = "댓글 목록 전송됨")

@@ -116,7 +116,7 @@ class ArticleServiceTest {
         //when
         when(articleRepository.findArticleDetailById(15L)).thenReturn(article);
         //then
-        assertEquals(article,articleService.findByArticleId(15L));
+        assertEquals(article,articleService.findByArticleId(15L,1L));
     }
 
     @Test
@@ -124,7 +124,7 @@ class ArticleServiceTest {
         //when
         when(articleRepository.findArticleDetailById(14L)).thenThrow(new EntityNotFoundException("게시물이 존재하지 않습니다"));
         //then
-        assertThrows(EntityNotFoundException.class, ()-> articleService.findByArticleId(14L));
+        assertThrows(EntityNotFoundException.class, ()-> articleService.findByArticleId(14L,1L));
     }
 
     @Test
