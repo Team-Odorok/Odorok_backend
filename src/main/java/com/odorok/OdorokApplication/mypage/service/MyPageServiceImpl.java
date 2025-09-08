@@ -3,11 +3,13 @@ package com.odorok.OdorokApplication.mypage.service;
 import com.odorok.OdorokApplication.community.repository.ArticleRepository;
 import com.odorok.OdorokApplication.community.repository.DiseaseRepository;
 import com.odorok.OdorokApplication.community.repository.ProfileRepository;
+import com.odorok.OdorokApplication.course.repository.UserDiseaseRepository;
 import com.odorok.OdorokApplication.course.repository.UserRepository;
 import com.odorok.OdorokApplication.diary.repository.DiaryRepository;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.domain.HealthInfo;
 import com.odorok.OdorokApplication.domain.User;
+import com.odorok.OdorokApplication.domain.UserDisease;
 import com.odorok.OdorokApplication.draftDomain.Profile;
 import com.odorok.OdorokApplication.draftDomain.Tier;
 import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
@@ -25,8 +27,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +40,7 @@ public class MyPageServiceImpl implements MyPageService{
     private final MyPageImageService myPageImageService;
     private final MyPageTransactionService myPageTransactionService;
     private final HealthInfoRepository healthInfoRepository;
-    private final DiseaseRepository diseaseRepository;
+    private final UserDiseaseRepository userDiseaseRepository;
     private final ArticleRepository articleRepository;
     private final DiaryRepository diaryRepository;
     private final VisitedCourseRepository visitedCourseRepository;
@@ -67,6 +72,8 @@ public class MyPageServiceImpl implements MyPageService{
     @Override
     public UserHealthInfoResponse findUserHealthInfo(Long id) {
         HealthInfo healthInfo = healthInfoRepository.findByUserId(id);
+        List<Long> diseaseIds = Optional.ofNullable(userDiseaseRepository.findAllDiseaseIdByUserId(id))
+                .orElseGet(java.util.List::of);
         return UserHealthInfoResponse.builder().gender(healthInfo.getGender())
                 .height(healthInfo.getHeight())
                 .weight(healthInfo.getWeight())
@@ -74,6 +81,7 @@ public class MyPageServiceImpl implements MyPageService{
                 .smoking(healthInfo.getSmoking())
                 .drinkPerWeek(healthInfo.getDrinkPerWeek())
                 .exercisePerWeek(healthInfo.getExercisePerWeek())
+                .diseaseList(diseaseIds)
                 .build();
     }
 
@@ -88,6 +96,14 @@ public class MyPageServiceImpl implements MyPageService{
         healthInfo.setSmoking(healthProfileUpdateRequest.getSmoking());
         healthInfo.setDrinkPerWeek(healthProfileUpdateRequest.getDrinkPerWeek());
         healthInfo.setExercisePerWeek(healthProfileUpdateRequest.getExercisePerWeek());
+        userDiseaseRepository.deleteAllByUserId(id);
+
+        for(Long i : healthProfileUpdateRequest.getNewDiseaseList()){
+            UserDisease userDisease = UserDisease.builder()
+                    .diseaseId(i).userId(id).createdAt(LocalDateTime.now())
+                    .build();
+            userDiseaseRepository.save(userDisease);
+        }
     }
 
     @Override
