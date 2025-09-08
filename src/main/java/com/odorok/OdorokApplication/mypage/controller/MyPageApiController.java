@@ -7,6 +7,7 @@ import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateReques
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
+import com.odorok.OdorokApplication.mypage.dto.response.UserStatisticResponse;
 import com.odorok.OdorokApplication.mypage.service.MyPageService;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,5 +64,15 @@ public class MyPageApiController {
         Long id = user.getUserId();
         myPageService.updateUserHealthInfo(id,healthProfileUpdateRequest);
         return ResponseEntity.ok(CommonResponseBuilder.success("유저 건강정보 성공적으로 수정"));
+    }
+    //활동 건수 조회 get
+    //마이페이지 다이어리 조회 기능(어떤 값들이 있어야 하는가) <- 모르니까 일단 만들어놓고 값은 그때그때 추가하는 방식
+    @Operation(summary = "유저 활동내역 통계", description = "유저 활동내역에 대한 건수")
+    @ApiResponse(responseCode = "200", description = "유저의 활동내역 건수 반환")
+    @GetMapping("/activity/statistics")
+    public ResponseEntity<ResponseRoot<UserStatisticResponse>> searchUserStatistics(@AuthenticationPrincipal CustomUserDetails user){
+        Long id = user.getUserId();
+        UserStatisticResponse response = myPageService.searchUserStatistics(id);
+        return ResponseEntity.ok(CommonResponseBuilder.success("유저 통계내역 반환",response));
     }
 }

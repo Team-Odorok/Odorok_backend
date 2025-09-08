@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -15,4 +17,5 @@ public class HealthProfileUpdateRequest {
     private Boolean smoking;
     private Integer drinkPerWeek;
     private Integer exercisePerWeek;
+    private List<Long> newDiseaseList;
 }
