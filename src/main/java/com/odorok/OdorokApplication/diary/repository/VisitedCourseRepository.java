@@ -17,4 +17,10 @@ public interface VisitedCourseRepository extends JpaRepository<VisitedCourse, Lo
 
     @Query(value = "SELECT COUNT(*) FROM visited_courses v WHERE v.course_id = :courseId and v.review IS NOT NULL", nativeQuery = true)
     Long countReviewsOf(@Param("courseId") Long courseId);
+    @Query("""
+            select v.distance
+            from visited_courses v
+            where v.userId = :userId
+            """)
+    List<Integer> findAllDistanceByUserId(@Param("userId")Long id);
 }
