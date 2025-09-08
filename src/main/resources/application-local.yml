@@ -1,0 +1,75 @@
+logging:
+  level:
+    root: INFO
+    com.odorok: DEBUG
+server:
+  port: 8080
+spring:
+  config:
+    import:
+      - classpath:application-secret.yml
+      - classpath:application-gpt-system.yml
+  jackson :
+  datasource:
+    url: jdbc:mysql://localhost:3306/odorok_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ssafy
+    password: ssafy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate   # 필요시 update/create/drop
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+
+  #property-naming-strategy: SNAKE_CASE
+  output:
+    ansi:
+      enabled: always
+
+  security:
+    oauth2:
+      client:
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  jwt:
+    expiration: 6000000000       # access token ?? ?? (?)
+    refresh-token:
+      expiration: 1000008000    # refresh token ?? ?? (7? = 60*24*7)
+
+cloud:
+  aws:
+    s3:
+      bucket: ssafytripbucket
+      region: ap-northeast-2
+  stack:
+    auto: false
+
+gpt:
+  model : gpt-4.1-2025-04-14
+  temperature : 0.7
+
+
+springdoc:
+  packages-to-scan: com.odorok
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  cache:
+    disabled: true
+  api-docs:
+    path: /api/api-docs/json
+    groups:
+      enabled: true
+  swagger-ui:
+    enabled: true
+    path: /api/odorokapi-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha

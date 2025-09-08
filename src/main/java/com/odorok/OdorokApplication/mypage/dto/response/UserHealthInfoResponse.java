@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 @Getter
@@ -25,5 +26,7 @@ public class UserHealthInfoResponse {
     private Integer drinkPerWeek;
 
     private Integer exercisePerWeek;
+
+    private List<Long> diseaseList;
 
 }
