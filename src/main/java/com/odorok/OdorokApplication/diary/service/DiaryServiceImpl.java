@@ -1,10 +1,12 @@
 package com.odorok.OdorokApplication.diary.service;
 
+import com.odorok.OdorokApplication.community.repository.ProfileRepository;
 import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
 import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRequest;
 import com.odorok.OdorokApplication.diary.dto.response.*;
+import com.odorok.OdorokApplication.diary.repository.PurchaseHistoryRepository;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryChatAnswerRequest;
@@ -14,6 +16,8 @@ import com.odorok.OdorokApplication.domain.Diary;
 import com.odorok.OdorokApplication.domain.DiaryImage;
 import com.odorok.OdorokApplication.draftDomain.Inventory;
 import com.odorok.OdorokApplication.draftDomain.Item;
+import com.odorok.OdorokApplication.draftDomain.Profile;
+import com.odorok.OdorokApplication.draftDomain.PurchaseHistory;
 import com.odorok.OdorokApplication.gpt.service.GptService;
 import com.odorok.OdorokApplication.diary.repository.InventoryRepository;
 import com.odorok.OdorokApplication.diary.repository.ItemRepository;
@@ -25,6 +29,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,8 @@ public class DiaryServiceImpl implements DiaryService{
     private final ItemRepository itemRepository;
     private final VisitedCourseRepository visitedCourseRepository;
     private final DiaryImageService diaryImageService;
+    private final ProfileRepository profileRepository;
+    private final PurchaseHistoryRepository purchaseHistoryRepository;
 
     private Long diaryPermissionItemId;
 
@@ -245,6 +252,49 @@ public class DiaryServiceImpl implements DiaryService{
             log.error("일지 DB 등록 중 예외 발생 - 이미지 정리 후 예외 전파", e);
             throw e;
         }
+    }
+
+    @Override
+    @Transactional
+    public void purchaseDiaryPermissionItem(long userId, int quantity) {
+        if (quantity < 1) throw new IllegalArgumentException("구매 수량은 1개 이상이어야 합니다.");
+
+        final int ITEM_PRICE = 10;
+        long itemId = getDiaryPermissionItemId();
+
+        // 1. 프로필 조회 및 마일리지 확인
+        Profile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("프로필을 찾을 수 없습니다."));
+
+        int requiredMileage = quantity * ITEM_PRICE;
+        if (profile.getMileage() < requiredMileage) {
+            throw new IllegalStateException(String.format("마일리지가 부족합니다. 필요: %d, 보유: %d",
+                    requiredMileage, profile.getMileage()));
+        }
+
+        // 2. 마일리지 차감
+        profile.setMileage(profile.getMileage() - requiredMileage);
+        profileRepository.save(profile);
+
+        // 3. 구매 내역 추가
+        PurchaseHistory purchaseHistory = PurchaseHistory.builder()
+                .userId(userId)
+                .itemId(itemId)
+                .amount(quantity)
+                .cost(requiredMileage)
+                .boughtAt(LocalDateTime.now())
+                .build();
+        purchaseHistoryRepository.save(purchaseHistory);
+
+        // 4. 인벤토리 아이템 추가
+        Inventory inventory = inventoryRepository.findByUserIdAndItemId(userId, itemId)
+                .orElseGet(() -> Inventory.builder()
+                        .userId(userId)
+                        .itemId(itemId)
+                        .count(0)
+                        .build());
+        inventory.setCount(inventory.getCount() + quantity);
+        inventoryRepository.save(inventory);
     }
 
     public String getFinalizeContentWithMarkup(String content) {

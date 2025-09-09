@@ -131,4 +131,12 @@ public class DiaryController {
         ResponseRoot<?> response = success("일지 삭제 성공");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PostMapping("/diary-create-items")
+    public ResponseEntity<?> getDiaryCreatedItem(@RequestParam Integer quantity, @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+        diaryService.purchaseDiaryPermissionItem(userId, quantity);
+        ResponseRoot<?> response = success("일지 아이템 구매 성공");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
