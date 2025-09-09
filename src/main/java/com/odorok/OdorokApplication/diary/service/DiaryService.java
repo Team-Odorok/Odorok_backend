@@ -37,4 +37,6 @@ public interface DiaryService {
     public GptService.Prompt buildRegenerationPrompt(String feedback);
 
     public Long insertFinalizeDiary(long userId, DiaryRequest diaryRequest, List<MultipartFile> images);
+
+    public void purchaseDiaryPermissionItem(long userId, int quantity);
 }

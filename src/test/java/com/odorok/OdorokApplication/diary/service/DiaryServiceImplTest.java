@@ -1,18 +1,22 @@
 package com.odorok.OdorokApplication.diary.service;
 
+import com.odorok.OdorokApplication.community.repository.ProfileRepository;
 import com.odorok.OdorokApplication.commons.exception.GptCommunicationException;
 import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRequest;
 import com.odorok.OdorokApplication.diary.dto.response.*;
+import com.odorok.OdorokApplication.diary.repository.ItemRepository;
+import com.odorok.OdorokApplication.diary.repository.PurchaseHistoryRepository;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryChatAnswerRequest;
 import com.odorok.OdorokApplication.diary.repository.DiaryRepository;
-import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.domain.Diary;
 import com.odorok.OdorokApplication.draftDomain.Inventory;
+import com.odorok.OdorokApplication.draftDomain.Profile;
+import com.odorok.OdorokApplication.draftDomain.PurchaseHistory;
 import com.odorok.OdorokApplication.gpt.service.GptService;
 import com.odorok.OdorokApplication.diary.repository.InventoryRepository;
 import org.junit.jupiter.api.BeforeEach;
