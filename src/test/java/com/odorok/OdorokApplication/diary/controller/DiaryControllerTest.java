@@ -156,4 +156,19 @@ public class DiaryControllerTest {
         result.andExpect(MockMvcResultMatchers.jsonPath("$.data.diaryId").value(savedDiaryId));
     }
 
+    @Test
+    void 일지_생성권_구매_요청_성공() throws Exception {
+        // given
+        int quantity = 5;
+        doNothing().when(diaryService).purchaseDiaryPermissionItem(TEST_USER_ID, quantity);
+
+        // when
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/api/diaries/diary-create-items")
+                .param("quantity", String.valueOf(quantity)));
+
+        // then
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.message").value("일지 아이템 구매 성공"));
+        verify(diaryService, times(1)).purchaseDiaryPermissionItem(TEST_USER_ID, quantity);
+    }
 }
