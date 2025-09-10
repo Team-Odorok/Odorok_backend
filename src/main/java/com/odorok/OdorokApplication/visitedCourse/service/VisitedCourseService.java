@@ -6,5 +6,5 @@ import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSumm
 import java.util.List;
 
 public interface VisitedCourseService {
-    List<VisitedCourseSummaryWithGilName> getVisitedCourses(CustomUserDetails userDetails);
+    List<VisitedCourseSummaryWithGilName> getVisitedCourses(Long userId);
 }

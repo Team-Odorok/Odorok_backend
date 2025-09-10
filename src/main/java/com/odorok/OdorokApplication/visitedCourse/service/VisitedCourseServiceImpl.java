@@ -15,8 +15,7 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
     private final VisitedCourseRepository visitedCourseRepository;
 
     @Override
-    public List<VisitedCourseSummaryWithGilName> getVisitedCourses(CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
+    public List<VisitedCourseSummaryWithGilName> getVisitedCourses(Long userId) {
         return visitedCourseRepository.findVisitedCoursesByUserId(userId);
     }
 }

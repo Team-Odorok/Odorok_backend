@@ -26,7 +26,8 @@ public class VisitedCourseController {
     @Operation(summary = "방문 완료한 코스 목록 조회", description = "사용자가 방문 완료한 코스 목록을 조회합니다.")
     public ResponseEntity<ResponseRoot<List<VisitedCourseSummaryWithGilName>>> getVisitedCourses(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<VisitedCourseSummaryWithGilName> visitedCourses = visitedCourseService.getVisitedCourses(userDetails);
+        Long userId = userDetails.getUserId();
+        List<VisitedCourseSummaryWithGilName> visitedCourses = visitedCourseService.getVisitedCourses(userId);
         return ResponseEntity.ok(CommonResponseBuilder.success("방문 완료 코스 목록 조회 성공", visitedCourses));
     }
 }
