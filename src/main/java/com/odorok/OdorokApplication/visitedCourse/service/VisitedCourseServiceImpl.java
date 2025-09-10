@@ -3,10 +3,15 @@ package com.odorok.OdorokApplication.visitedCourse.service;
 import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
+import com.odorok.OdorokApplication.domain.VisitedCourse;
+import com.odorok.OdorokApplication.s3.service.S3Service;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,6 +20,7 @@ import java.util.List;
 public class VisitedCourseServiceImpl implements VisitedCourseService {
 
     private final VisitedCourseRepository visitedCourseRepository;
+    private final S3Service s3Service;
 
     @Override
     public List<VisitedCourseSummaryWithGilName> getVisitedCourses(Long userId) {
@@ -23,18 +29,47 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
 
     @Override
     public VisitedCourseDetail getVisitedCourseDetail(Long userId, Long visitedCourseId) {
-        // 방문 코스 조회
+        // 1. Get the main detail object, checking ownership
         VisitedCourseDetail detail = visitedCourseRepository.findDetailById(userId, visitedCourseId)
                 .orElseThrow(() -> new NotFoundException("해당 방문 코스 정보를 찾을 수 없거나 소유자가 아닙니다."));
 
-        // 방문한 다른 명소 조회
+        // 2. Get the list of visited attractions
         List<VisitedAdditionalAttraction> attractions = visitedCourseRepository.findVisitedAttractionByVisitedCourseId(userId, visitedCourseId);
         detail.setVisitedAttractions(attractions);
 
-        // 코스에 대한 평균 별점 조회
+        // 3. Get the average stars for the course
         Double avgStars = visitedCourseRepository.findAvgStarsByCourseId(detail.getCourseId());
         detail.setAverageStars(avgStars);
 
+        // 4. Return the complete DTO
         return detail;
+    }
+
+    @Override
+    @Transactional
+    public void createOrUpdateReview(Long userId, Long visitedCourseId, int star, String review, MultipartFile image) {
+        // visitedCourse 조회
+        VisitedCourse visitedCourse = visitedCourseRepository.findById(visitedCourseId)
+                .orElseThrow(() -> new NotFoundException("해당 방문 코스 정보를 찾을 수 없습니다."));
+
+        // 사용자 방문 코스인지 확인
+        if (!visitedCourse.getUserId().equals(userId)) {
+            throw new AccessDeniedException("후기를 작성할 권한이 없습니다.");
+        }
+
+        // 후기 이미지 업로드
+        if (image != null && !image.isEmpty()) {
+            // 이미지가 이미 존재하면 삭제
+            if (visitedCourse.getImgUrl() != null && !visitedCourse.getImgUrl().isEmpty()) {
+                s3Service.deleteMany(List.of(visitedCourse.getImgUrl()));
+            }
+            // 새 이미지 업로드
+            List<String> imageUrls = s3Service.uploadMany("reviews", userId.toString(), List.of(image));
+            visitedCourse.setImgUrl(imageUrls.get(0));
+        }
+
+        visitedCourse.setStars(star);
+        visitedCourse.setReview(review);
+        visitedCourseRepository.save(visitedCourse);
     }
 }

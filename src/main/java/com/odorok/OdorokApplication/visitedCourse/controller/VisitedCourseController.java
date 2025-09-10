@@ -8,12 +8,11 @@ import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSumm
 import com.odorok.OdorokApplication.visitedCourse.service.VisitedCourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,5 +40,18 @@ public class VisitedCourseController {
         Long userId = userDetails.getUserId();
         VisitedCourseDetail visitedCourseDetail = visitedCourseService.getVisitedCourseDetail(userId, visitedCourseId);
         return ResponseEntity.ok(CommonResponseBuilder.success("방문 완료 코스 상세 정보 조회 성공", visitedCourseDetail));
+    }
+
+    @PostMapping("/{visited-courses_id}/reviews")
+    @Operation(summary = "방문 완료 코스 후기 작성/수정", description = "방문 완료한 코스에 대한 후기를 작성하거나 수정합니다.")
+    public ResponseEntity<ResponseRoot<Void>> createOrUpdateReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("visited-courses_id") Long visitedCourseId,
+            @RequestPart("star") int star,
+            @RequestPart("review") String review,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        Long userId = userDetails.getUserId();
+        visitedCourseService.createOrUpdateReview(userId, visitedCourseId, star, review, image);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponseBuilder.success("후기 작성 성공"));
     }
 }
