@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.course.dto.process.CourseStat;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
 import com.odorok.OdorokApplication.diary.dto.response.VisitedCourseSummary;
+import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
 
 import java.util.List;
 
@@ -12,4 +13,6 @@ public interface VisitedCourseRepositoryCustom {
     VisitedCourseAndAttraction findCourseAndAttractionsByVisitedCourseId(Long userId, Long visitedCourseId);
     List<VisitedCourseSummary> findVisitedCourseWithoutDiaryByUserId(Long userId);
     List<CourseStat> summarizeCourseFeedback();
+
+    List<VisitedCourseSummaryWithGilName> findVisitedCoursesByUserId(Long userId);
 }
