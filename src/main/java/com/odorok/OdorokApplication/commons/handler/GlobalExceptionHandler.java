@@ -19,7 +19,7 @@ import java.nio.file.AccessDeniedException;
 
 import static com.odorok.OdorokApplication.commons.response.CommonResponseBuilder.fail;
 
-//@RestControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
