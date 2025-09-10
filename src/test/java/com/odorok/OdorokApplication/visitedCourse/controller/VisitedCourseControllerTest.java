@@ -11,9 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,19 +22,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 @WebMvcTest(VisitedCourseController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class VisitedCourseControllerTest {
 
     @Autowired
@@ -117,6 +123,35 @@ public class VisitedCourseControllerTest {
 
         // then
         resultActions.andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("후기 작성/수정 성공")
+    void createOrUpdateReview_Success() throws Exception {
+        // given
+        long visitedCourseId = 1L;
+        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "test image".getBytes());
+        MockMultipartFile star = new MockMultipartFile("star", "", "application/json", "5".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile review = new MockMultipartFile("review", "", "application/json", "\"좋은 후기\"".getBytes(StandardCharsets.UTF_8));
+
+        doNothing().when(visitedCourseService).createOrUpdateReview(anyLong(), anyLong(), anyInt(), anyString(), any());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.multipart("/api/visited-courses/{id}/reviews", visitedCourseId)
+                .file(image)
+                .file(star)
+                .file(review)
+                .with(request -> {
+                    request.setMethod("POST");
+                    return request;
+                })
+                .with(authentication(SecurityContextHolder.getContext().getAuthentication())));
+
+        // then
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("success"))
+                .andExpect(jsonPath("$.message").value("후기 작성 성공"))
                 .andDo(print());
     }
 }
