@@ -1,7 +1,10 @@
 package com.odorok.OdorokApplication.visitedCourse.controller;
 
+import com.odorok.OdorokApplication.commons.exception.NotFoundException;
+import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.domain.User;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
+import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
 import com.odorok.OdorokApplication.visitedCourse.service.VisitedCourseService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -39,10 +43,11 @@ public class VisitedCourseControllerTest {
     private VisitedCourseService visitedCourseService;
 
     private CustomUserDetails testUserDetails;
+    private final long testUserId = 1L;
 
     @BeforeEach
     void setUp() {
-        User user = User.builder().id(1L).email("test@example.com").role("ROLE_USER").build();
+        User user = User.builder().id(testUserId).email("test@example.com").role("ROLE_USER").build();
         testUserDetails = new CustomUserDetails(user);
         Authentication auth = new UsernamePasswordAuthenticationToken(testUserDetails, null, List.of(new SimpleGrantedAuthority(user.getRole())));
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -57,7 +62,7 @@ public class VisitedCourseControllerTest {
                 new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
         );
 
-        given(visitedCourseService.getVisitedCourses(1L)).willReturn(mockResponse);
+        given(visitedCourseService.getVisitedCourses(testUserId)).willReturn(mockResponse);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/visited-courses")
@@ -70,6 +75,48 @@ public class VisitedCourseControllerTest {
                 .andExpect(jsonPath("$.data[0].visitedAt").value("2025-09-11T10:30:00"))
                 .andExpect(jsonPath("$.data[0].gilName").value("해파랑길"))
                 .andExpect(jsonPath("$.data[0].courseName").value("해파랑길 1코스"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("방문 완료 코스 상세 정보 조회 성공")
+    void getVisitedCourseDetail_Success() throws Exception {
+        // given
+        long visitedCourseId = 1L;
+        VisitedCourseDetail mockResponse = new VisitedCourseDetail(visitedCourseId, LocalDateTime.now(), 101L, "해파랑길", "해파랑길 1코스", 10.5, 5, "리뷰 내용", "image.url");
+        mockResponse.setAverageStars(4.5);
+        mockResponse.setVisitedAttractions(Collections.singletonList(new VisitedAdditionalAttraction("호미곶", "주소", "설명")));
+
+        given(visitedCourseService.getVisitedCourseDetail(testUserId, visitedCourseId)).willReturn(mockResponse);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses/{id}", visitedCourseId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"))
+                .andExpect(jsonPath("$.data.id").value(visitedCourseId))
+                .andExpect(jsonPath("$.data.courseName").value("해파랑길 1코스"))
+                .andExpect(jsonPath("$.data.averageStars").value(4.5))
+                .andExpect(jsonPath("$.data.visitedAttractions[0].title").value("호미곶"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 방문 코스 상세 정보 조회 시 404 반환")
+    void getVisitedCourseDetail_NotFound() throws Exception {
+        // given
+        long nonExistentId = 999L;
+        given(visitedCourseService.getVisitedCourseDetail(testUserId, nonExistentId))
+                .willThrow(new NotFoundException("해당 방문 코스 정보를 찾을 수 없거나 소유자가 아닙니다."));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses/{id}", nonExistentId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        resultActions.andExpect(status().isNotFound())
                 .andDo(print());
     }
 }
