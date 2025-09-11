@@ -46,4 +46,7 @@ public class VisitedCourse {
 
     @Column(name = "is_finished")
     private Boolean isFinished;
+
+    @Column(name = "review_img_url")
+    private String reviewImgUrl;
 }

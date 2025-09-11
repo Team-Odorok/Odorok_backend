@@ -29,25 +29,24 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
 
     @Override
     public VisitedCourseDetail getVisitedCourseDetail(Long userId, Long visitedCourseId) {
-        // 1. Get the main detail object, checking ownership
+        // 방문코스 유효성 확인
         VisitedCourseDetail detail = visitedCourseRepository.findDetailById(userId, visitedCourseId)
                 .orElseThrow(() -> new NotFoundException("해당 방문 코스 정보를 찾을 수 없거나 소유자가 아닙니다."));
 
-        // 2. Get the list of visited attractions
+        // 방문 명소 리스트
         List<VisitedAdditionalAttraction> attractions = visitedCourseRepository.findVisitedAttractionByVisitedCourseId(userId, visitedCourseId);
         detail.setVisitedAttractions(attractions);
 
-        // 3. Get the average stars for the course
+        // 코스 평균 별점
         Double avgStars = visitedCourseRepository.findAvgStarsByCourseId(detail.getCourseId());
         detail.setAverageStars(avgStars);
 
-        // 4. Return the complete DTO
         return detail;
     }
 
     @Override
     @Transactional
-    public void createOrUpdateReview(Long userId, Long visitedCourseId, int star, String review, MultipartFile image) {
+    public void createOrUpdateReview(Long userId, Long visitedCourseId, int star, String review, MultipartFile reviewImage) {
         // visitedCourse 조회
         VisitedCourse visitedCourse = visitedCourseRepository.findById(visitedCourseId)
                 .orElseThrow(() -> new NotFoundException("해당 방문 코스 정보를 찾을 수 없습니다."));
@@ -58,14 +57,14 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
         }
 
         // 후기 이미지 업로드
-        if (image != null && !image.isEmpty()) {
+        if (reviewImage != null && !reviewImage.isEmpty()) {
             // 이미지가 이미 존재하면 삭제
-            if (visitedCourse.getImgUrl() != null && !visitedCourse.getImgUrl().isEmpty()) {
-                s3Service.deleteMany(List.of(visitedCourse.getImgUrl()));
+            if (visitedCourse.getReviewImgUrl() != null && !visitedCourse.getReviewImgUrl().isEmpty()) {
+                s3Service.deleteMany(List.of(visitedCourse.getReviewImgUrl()));
             }
             // 새 이미지 업로드
-            List<String> imageUrls = s3Service.uploadMany("reviews", userId.toString(), List.of(image));
-            visitedCourse.setImgUrl(imageUrls.get(0));
+            List<String> imageUrls = s3Service.uploadMany("reviews", userId.toString(), List.of(reviewImage));
+            visitedCourse.setReviewImgUrl(imageUrls.get(0));
         }
 
         visitedCourse.setStars(star);

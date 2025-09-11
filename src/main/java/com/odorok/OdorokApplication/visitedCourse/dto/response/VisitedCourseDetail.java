@@ -20,11 +20,11 @@ public class VisitedCourseDetail {
     private Integer stars;
     private String review;
     private Double averageStars;
-    private String image;
+    private String reviewImgUrl;
     private List<VisitedAdditionalAttraction> visitedAttractions;
 
     @QueryProjection
-    public VisitedCourseDetail(Long id, LocalDateTime visitedAt, Long courseId, String gilName, String courseName, Double distance, Integer stars, String review, String image) {
+    public VisitedCourseDetail(Long id, LocalDateTime visitedAt, Long courseId, String gilName, String courseName, Double distance, Integer stars, String review, String reviewImgUrl) {
         this.id = id;
         this.visitedAt = visitedAt;
         this.courseId = courseId;
@@ -33,6 +33,6 @@ public class VisitedCourseDetail {
         this.distance = distance;
         this.stars = stars;
         this.review = review;
-        this.image = image;
+        this.reviewImgUrl = reviewImgUrl;
     }
 }
