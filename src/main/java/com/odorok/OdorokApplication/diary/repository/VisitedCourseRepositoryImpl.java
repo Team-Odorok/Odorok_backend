@@ -131,7 +131,7 @@ public class VisitedCourseRepositoryImpl implements VisitedCourseRepositoryCusto
                         visitedCourses.distance,
                         visitedCourses.stars,
                         visitedCourses.review,
-                        visitedCourses.imgUrl
+                        visitedCourses.reviewImgUrl
                 ))
                 .from(visitedCourses)
                 .join(courses).on(visitedCourses.courseId.eq(courses.id))

@@ -132,7 +132,7 @@ class VisitedCourseServiceTest {
         VisitedCourse savedCourse = captor.getValue();
         assertThat(savedCourse.getStars()).isEqualTo(5);
         assertThat(savedCourse.getReview()).isEqualTo("새로운 후기");
-        assertThat(savedCourse.getImgUrl()).isEqualTo("http://new.image.url");
+        assertThat(savedCourse.getReviewImgUrl()).isEqualTo("http://new.image.url");
     }
 
     @Test
