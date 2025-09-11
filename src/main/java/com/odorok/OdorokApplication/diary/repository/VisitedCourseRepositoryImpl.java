@@ -10,6 +10,8 @@ import com.odorok.OdorokApplication.domain.QVisitedAttraction;
 import com.odorok.OdorokApplication.domain.QVisitedCourse;
 import com.odorok.OdorokApplication.draftDomain.QAttraction;
 import com.odorok.OdorokApplication.infrastructures.domain.QCourse;
+import com.odorok.OdorokApplication.infrastructures.domain.QRoute;
+import com.odorok.OdorokApplication.visitedCourse.dto.response.*;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -31,6 +34,7 @@ public class VisitedCourseRepositoryImpl implements VisitedCourseRepositoryCusto
     QVisitedAttraction visitedAttractions = QVisitedAttraction.visitedAttraction;
     QAttraction attractions = QAttraction.attraction;
     QDiary diary = QDiary.diary;
+    QRoute route = QRoute.route;
 
     @Override
     public List<VisitedAdditionalAttraction> findVisitedAttractionByVisitedCourseId(Long userId, Long visitedCourseId) {
@@ -96,5 +100,43 @@ public class VisitedCourseRepositoryImpl implements VisitedCourseRepositoryCusto
         return jpaQueryFactory.select(
                 new QCourseStat(visitedCourses.courseId, visitedCourses.stars.avg(), visitedCourses.review.count(), visitedCourses.id.count())
                 ).from(visitedCourses).groupBy(visitedCourses.courseId).fetch();
+    }
+
+    @Override
+    public List<VisitedCourseSummaryWithGilName> findVisitedCoursesByUserId(Long userId) {
+        return jpaQueryFactory
+                .select(new QVisitedCourseSummaryWithGilName(
+                        visitedCourses.id,
+                        visitedCourses.visitedAt,
+                        route.name,
+                        courses.name
+                ))
+                .from(visitedCourses)
+                .join(courses).on(visitedCourses.courseId.eq(courses.id))
+                .join(route).on(courses.routeIdx.eq(route.idx))
+                .where(visitedCourses.userId.eq(userId).and(visitedCourses.isFinished.isTrue()))
+                .orderBy(visitedCourses.visitedAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public Optional<VisitedCourseDetail> findDetailById(Long userId, Long visitedCourseId) {
+        return Optional.ofNullable(jpaQueryFactory
+                .select(new QVisitedCourseDetail(
+                        visitedCourses.id,
+                        visitedCourses.visitedAt,
+                        visitedCourses.courseId,
+                        route.name,
+                        courses.name,
+                        visitedCourses.distance,
+                        visitedCourses.stars,
+                        visitedCourses.review,
+                        visitedCourses.reviewImgUrl
+                ))
+                .from(visitedCourses)
+                .join(courses).on(visitedCourses.courseId.eq(courses.id))
+                .join(route).on(courses.routeIdx.eq(route.idx))
+                .where(visitedCourses.id.eq(visitedCourseId).and(visitedCourses.userId.eq(userId)))
+                .fetchOne());
     }
 }

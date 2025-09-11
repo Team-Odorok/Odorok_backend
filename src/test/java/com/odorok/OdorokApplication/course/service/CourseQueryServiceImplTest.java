@@ -160,11 +160,11 @@ class CourseQueryServiceImplTest {
                 UserDisease.builder().userId(TEST_USER_3).diseaseId(0l).build())
         );
         Mockito.when(visitedCourseQueryService.queryVisitedCourses(Mockito.anyLong())).thenReturn(List.of(
-                new VisitedCourse(1L, TEST_COURSE_ID, LocalDateTime.now(), TEST_USER_ID, null, null, null, 1, 1.0, "", false),
-                new VisitedCourse(2L, TEST_COURSE_ID + 1, LocalDateTime.now(), TEST_USER_ID, null, null, null, 2, 1.0, "", true),
-                new VisitedCourse(3L, TEST_COURSE_ID + 2, LocalDateTime.now(), TEST_USER_ID, null, null, null, 3, 1.0, "", false),
-                new VisitedCourse(4L, TEST_COURSE_ID + 3, LocalDateTime.now(), TEST_USER_ID, null, null, null, 4, 1.0, "", true),
-                new VisitedCourse(5L, TEST_COURSE_ID + 4, LocalDateTime.now(), TEST_USER_ID, null, null, null, 5, 1.0, "", true)
+                new VisitedCourse(1L, TEST_COURSE_ID, LocalDateTime.now(), TEST_USER_ID, null, null, null, 1, 1.0, "", false, null),
+                new VisitedCourse(2L, TEST_COURSE_ID + 1, LocalDateTime.now(), TEST_USER_ID, null, null, null, 2, 1.0, "", true, null),
+                new VisitedCourse(3L, TEST_COURSE_ID + 2, LocalDateTime.now(), TEST_USER_ID, null, null, null, 3, 1.0, "", false, null),
+                new VisitedCourse(4L, TEST_COURSE_ID + 3, LocalDateTime.now(), TEST_USER_ID, null, null, null, 4, 1.0, "", true, null),
+                new VisitedCourse(5L, TEST_COURSE_ID + 4, LocalDateTime.now(), TEST_USER_ID, null, null, null, 5, 1.0, "", true, null)
         ));
         Mockito.when(courseRepository.findById(Mockito.any())).thenReturn(Optional.of(Course.builder().id(TEST_COURSE_ID).routeIdx("test001").build()));
         Mockito.when(routeQueryService.queryRouteNameByRouteIdx(Mockito.any())).thenReturn("test route name");
