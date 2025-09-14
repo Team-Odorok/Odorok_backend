@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PathCoordRepository extends JpaRepository<PathCoord, Long> {
     List<PathCoord> findByCourseId(Long courseId);
+
 }
