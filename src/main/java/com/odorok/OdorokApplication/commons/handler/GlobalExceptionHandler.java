@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.commons.exception.*;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
 import com.odorok.OdorokApplication.course.exception.ScheduledDateOverlappingException;
 import com.odorok.OdorokApplication.region.exception.InvalidSidoCodeException;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.Access;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.nio.file.AccessDeniedException;
 
 import static com.odorok.OdorokApplication.commons.response.CommonResponseBuilder.fail;
 
+@Hidden
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
