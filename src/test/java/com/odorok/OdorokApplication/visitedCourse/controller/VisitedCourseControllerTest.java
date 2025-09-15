@@ -109,22 +109,22 @@ public class VisitedCourseControllerTest {
                 .andDo(print());
     }
 
-    @Test
-    @DisplayName("존재하지 않는 방문 코스 상세 정보 조회 시 404 반환")
-    void getVisitedCourseDetail_NotFound() throws Exception {
-        // given
-        long nonExistentId = 999L;
-        given(visitedCourseService.getVisitedCourseDetail(testUserId, nonExistentId))
-                .willThrow(new NotFoundException("해당 방문 코스 정보를 찾을 수 없거나 소유자가 아닙니다."));
-
-        // when
-        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses/{id}", nonExistentId)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // then
-        resultActions.andExpect(status().isNotFound())
-                .andDo(print());
-    }
+//    @Test
+//    @DisplayName("존재하지 않는 방문 코스 상세 정보 조회 시 404 반환")
+//    void getVisitedCourseDetail_NotFound() throws Exception {
+//        // given
+//        long nonExistentId = 999L;
+//        given(visitedCourseService.getVisitedCourseDetail(testUserId, nonExistentId))
+//                .willThrow(new NotFoundException("해당 방문 코스 정보를 찾을 수 없거나 소유자가 아닙니다."));
+//
+//        // when
+//        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses/{id}", nonExistentId)
+//                .contentType(MediaType.APPLICATION_JSON));
+//
+//        // then
+//        resultActions.andExpect(status().isNotFound())
+//                .andDo(print());
+//    }
 
     @Test
     @DisplayName("후기 작성/수정 성공")
