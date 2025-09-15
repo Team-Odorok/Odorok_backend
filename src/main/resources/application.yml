@@ -8,6 +8,10 @@ spring:
       - classpath:application-gpt-system.yml
   jackson :
   #property-naming-strategy: SNAKE_CASE
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
 
   jpa:
     hibernate:
