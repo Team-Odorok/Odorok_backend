@@ -1,13 +1,19 @@
 package com.odorok.OdorokApplication.coursestatus.service;
 
 import com.odorok.OdorokApplication.course.repository.PathCoordRepository;
+import com.odorok.OdorokApplication.coursestatus.dto.dto.TravelProgress;
+import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
+import com.odorok.OdorokApplication.domain.VisitedCourse;
 import com.odorok.OdorokApplication.infrastructures.domain.PathCoord;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,8 +21,11 @@ import java.util.List;
 public class CourseStatusServiceImpl implements CourseStatusService {
 
     private final PathCoordRepository pathCoordRepository;
+    private final VisitedCourseRepository visitedCourseRepository;
 
     private static final double EARTH_RADIUS_KM = 6371.0;
+
+
 
     // ===== 하버사인 =====
     private double distanceKm(double lat1, double lon1, double lat2, double lon2) {
@@ -110,33 +119,70 @@ public class CourseStatusServiceImpl implements CourseStatusService {
 
     // ===== 외부 제공: 진행거리(미터) =====
     @Override
-    public double getTraveledMeters(long courseId, double curLat, double curLon) {
+    public TravelProgress getTraveledProgress(long courseId, double curLat, double curLon) {
         List<PathCoord> coords = pathCoordRepository.findByCourseId(courseId);
-        if (coords == null || coords.isEmpty()) return 0.0;
+        if (coords == null || coords.isEmpty()) {
+            return new TravelProgress(0, -1); // 코스 없음
+        }
 
-        // 엔티티 → 경로 배열 [lat, lon]
         List<double[]> path = new ArrayList<>(coords.size());
         for (var c : coords) {
-            // c.getLatitude(), c.getLongitude()는 실제 필드명으로 맞춰주세요
             path.add(new double[]{c.getLatitude(), c.getLongitude()});
         }
+
         if (path.size() == 1) {
-            // 시작점만 있는 경우: 시작점→현재까지 거리 반환(선택)
-            return distanceMeters(path.get(0)[0], path.get(0)[1], curLat, curLon);
+            long meters = Math.round(distanceMeters(path.get(0)[0], path.get(0)[1], curLat, curLon));
+            return new TravelProgress(meters, 0);
         }
 
-        // 누적거리 테이블(km) & 스냅
         double[] cumKm = buildCumulativeKm(path);
         SnapResult snap = findClosestSegment(path, curLat, curLon);
 
-        // 시작점→세그먼트 시작점까지 누적 + 세그먼트 내 진행량
         double traveledKm = cumKm[snap.segStartIndex0] + snap.segLenKm * snap.t;
+        traveledKm = Math.max(0, Math.min(traveledKm, cumKm[cumKm.length - 1]));
 
-        // 과도/음수 방지
-        if (traveledKm < 0) traveledKm = 0;
-        double totalKm = cumKm[cumKm.length - 1];
-        if (traveledKm > totalKm) traveledKm = totalKm;
+        long meters = Math.round(traveledKm * 1000.0);
 
-        return traveledKm * 1000.0; // 미터로 반환
+        // 마지막 지나온 인덱스 판정
+        int lastPassedIndex = snap.segStartIndex0;
+        if (snap.t >= 0.98) { // 문턱치 넘으면 다음 점도 지난 것으로 인정
+            lastPassedIndex = snap.segStartIndex0 + 1;
+        }
+
+        return new TravelProgress(meters, lastPassedIndex);
+    }
+
+    @Override
+    @Transactional
+    public void registCourseStatus(Long userId, Long courseId) {
+        Optional<VisitedCourse> visitedCourse = visitedCourseRepository.findByUserIdAndCourseId(userId,courseId);
+        if(visitedCourse.isEmpty()){
+            Long firstId = pathCoordRepository.findOneByCourseId(courseId);
+            VisitedCourse course = VisitedCourse.builder().startCoordsId(firstId)
+                    .visitedAt(LocalDateTime.now())
+                    .courseId(courseId)
+                    .userId(userId)
+                    .isFinished(false).build();
+            visitedCourseRepository.save(course);
+        }
+    }
+
+    @Override
+    public Long findProgress(Long userId, Long courseId, Double curlatitude, Double curlongitude) {
+        TravelProgress travelProgress = getTraveledProgress(courseId,curlatitude,curlongitude);
+        return travelProgress.getTraveledMeters();
+    }
+
+    @Override
+    @Transactional
+    public void updateCourseStatus(Long userId, Long courseId, Double curlatitude, Double curlongitude) {
+        TravelProgress travelProgress = getTraveledProgress(courseId,curlatitude,curlongitude);
+        VisitedCourse visitedCourse = visitedCourseRepository.findByUserIdAndCourseId(userId,courseId).get();
+        visitedCourse.setEndCoordsId(travelProgress.getLastPassedIndex());
+        visitedCourse.setDistance((double)travelProgress.getTraveledMeters());
+        long lastIndex = pathCoordRepository.findLastByCourseId(courseId);
+        if(travelProgress.getLastPassedIndex()==lastIndex){
+            visitedCourse.setIsFinished(true);
+        }
     }
 }
