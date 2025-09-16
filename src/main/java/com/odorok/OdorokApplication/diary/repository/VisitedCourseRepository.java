@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VisitedCourseRepository extends JpaRepository<VisitedCourse, Long>, VisitedCourseRepositoryCustom  {
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
@@ -23,4 +24,6 @@ public interface VisitedCourseRepository extends JpaRepository<VisitedCourse, Lo
             where v.userId = :userId
             """)
     List<Integer> findAllDistanceByUserId(@Param("userId")Long id);
+
+    Optional<VisitedCourse> findByUserIdAndCourseId(Long userId, Long courseId);
 }
