@@ -7,6 +7,8 @@ import com.odorok.OdorokApplication.diary.service.DiaryService;
 
 import com.odorok.OdorokApplication.domain.User;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,10 @@ public class DiaryControllerTest {
 
     @MockitoBean
     private DiaryService diaryService;
+
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
+
     @BeforeEach
     public void setup() {
         Authentication auth = new UsernamePasswordAuthenticationToken(

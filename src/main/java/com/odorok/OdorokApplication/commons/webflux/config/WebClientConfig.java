@@ -43,4 +43,9 @@ public class WebClientConfig {
             customizer.add("Authorization", "Bearer "+GPT_KEY);
         }).codecs(config -> config.defaultCodecs().maxInMemorySize(GPT_CODE_IN_MEMORY_SIZE)).build(); // 최대 2메가
     }
+
+    @Bean("normalClient")
+    public WebClient normalClient(WebClient.Builder builder) {
+        return builder.build(); // 최대 2메가
+    }
 }

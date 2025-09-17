@@ -4,6 +4,8 @@ import com.odorok.OdorokApplication.course.service.CourseQueryService;
 import com.odorok.OdorokApplication.region.dto.response.item.SidoSummary;
 import com.odorok.OdorokApplication.region.dto.response.item.SigunguSummary;
 import com.odorok.OdorokApplication.region.service.RegionQueryService;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ class RegionApiControllerTest {
     private RegionQueryService regionQueryService;
     @MockitoBean
     private CourseQueryService courseQueryService;
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
+
 
     @Autowired
     private MockMvc mockMvc;

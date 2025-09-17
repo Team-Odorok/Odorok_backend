@@ -9,6 +9,10 @@ import com.odorok.OdorokApplication.domain.User;
 import com.odorok.OdorokApplication.draftDomain.Profile;
 import com.odorok.OdorokApplication.infrastructures.domain.Course;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
+import com.odorok.OdorokApplication.security.jwt.JWTUtil;
+import com.odorok.OdorokApplication.security.service.AuthService;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import com.odorok.OdorokApplication.security.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = { CourseApiController.class })
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class CourseApiControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -51,6 +56,9 @@ class CourseApiControllerTest {
     private CourseScheduleManageService courseScheduleManageService;
     @MockitoBean
     private CourseScheduleQueryService courseScheduleQueryService;
+
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
 
     private final static Long TEST_USER_ID = 1L;
     private final static String TEST_USER_EMAIL = "email";

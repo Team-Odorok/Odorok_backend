@@ -5,6 +5,8 @@ import com.odorok.OdorokApplication.attraction.dto.response.item.AttractionDetai
 import com.odorok.OdorokApplication.attraction.dto.response.item.AttractionSummary;
 import com.odorok.OdorokApplication.attraction.dto.response.item.ContentTypeSummary;
 import com.odorok.OdorokApplication.attraction.service.AttractionQueryService;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ class AttractionApiControllerTest {
 //    private JWTVerificationFilter jwtVerificationFilter;
     @MockitoBean
     private AttractionQueryService attractionQueryService;
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
 
     @Autowired
     private MockMvc mockMvc;
