@@ -26,7 +26,7 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
-        log.info("### S3Client init accessKey={}, bucketRegionFromYml={}", accessKey, region);
+        log.info("### S3Client init , bucketRegionFromYml={}", region);
         return S3Client.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)))
