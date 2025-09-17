@@ -2,6 +2,7 @@ package com.odorok.OdorokApplication.security.config;
 
 import com.odorok.OdorokApplication.security.filter.CustomLoginFilter;
 import com.odorok.OdorokApplication.security.filter.JWTFilter;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
 import com.odorok.OdorokApplication.security.jwt.JWTUtil;
 import com.odorok.OdorokApplication.security.repository.AuthUserRepository;
 import com.odorok.OdorokApplication.security.service.AuthService;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final AuthService authService;
     private final AuthUserRepository authUserRepository;
+    private final KakaoLoginFilter kakaoLoginFilter;
 
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -126,6 +128,9 @@ public class SecurityConfig {
 
         JWTFilter jwtFilter = new JWTFilter(jwtUtil, allowedUris, authService, authUserRepository);
         http.addFilterBefore(jwtFilter, CustomLoginFilter.class);
+
+        // OAuth2를 사용하여 로그인하는 필터를 등록함.
+        http.addFilterBefore(kakaoLoginFilter, CustomLoginFilter.class);
 
         // 가장 중요한 처리 : 세션을 생성하지 않도록 함.
         http.sessionManagement(auth -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
