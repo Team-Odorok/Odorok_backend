@@ -1,5 +1,6 @@
 package com.odorok.OdorokApplication.s3.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.s3.S3Configuration;
 import java.net.URI;
 
 @Configuration
+@Slf4j
 public class S3Config {
     @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
@@ -24,6 +26,7 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
+        log.info("### S3Client init accessKey={}, bucketRegionFromYml={}", accessKey, region);
         return S3Client.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)))

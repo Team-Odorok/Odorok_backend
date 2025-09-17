@@ -17,6 +17,7 @@ import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequestMapping("/api/articles")
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 public class ArticleApiController {
     private final ArticleService articleService;
     @Operation(summary = "게시물 전체조회", description = "등록일순,좋아요순,조회순으로 정렬가능 pageNum은 1부터 유효,50개의 게시물 제공")
