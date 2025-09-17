@@ -33,7 +33,7 @@ pipeline {
         KAKAO_REST_KEY      = credentials('KAKAO_REST_KEY')
         GPT_API_KEY         = credentials('GPT_API_KEY')
         AWS_ACCESS_KEY      = credentials('AWS_ACCESS_KEY')
-        AWS_SECRET_KEY      = credentials('AWS_SECRET_KEY'),
+        AWS_SECRET_KEY      = credentials('AWS_SECRET_KEY')
         KAKAO_PASSWORD_SECRET = credentialsId('KAKAO_PASSWORD_SECRET')
         // 필요 시 DB도 여기서:
         // DB_URL              = credentials('DB_URL')
