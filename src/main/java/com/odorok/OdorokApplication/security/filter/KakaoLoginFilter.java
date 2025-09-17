@@ -34,13 +34,13 @@ public class KakaoLoginFilter extends OncePerRequestFilter {
     String authorizationGrantType;
 
 
-    @Value("${spring.security.oauth2.client.provicer.kakao.authorization-uri}")
+    @Value("${spring.security.oauth2.client.provider.kakao.authorization-uri}")
     String authorizationUri;
 
-    @Value("${spring.security.oauth2.client.provicer.kakao.token-uri}")
+    @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
     String tokenUri;
 
-    @Value("${spring.security.oauth2.client.provicer.kakao.user-info-uri}")
+    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
     String userInfoUri;
 
 
