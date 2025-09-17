@@ -30,13 +30,13 @@ public class ArticleTransactionServiceImpl implements ArticleTransactionService{
         //url리스트 db작업
         articleImageService.insertArticleImageUrl(articleId,urls);
         //유저 프로필 조회
-        Profile profile = profileRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("점수 추가 실패"));
+        Profile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저 프로필 없음"));
         profile.setMileage(profile.getMileage()+30);
         profile.setActivityPoint(profile.getActivityPoint()+30);
         //점수 이력 추가
-        PointHistory history = PointHistory.builder().articleId(articleId).userId(article.getUserId()).point(30).build();
-        pointHistoryRepository.save(history);
+//        PointHistory history = PointHistory.builder().articleId(articleId).userId(userId).point(30).build();
+//        pointHistoryRepository.save(history);
     }
 
     @Override
