@@ -49,7 +49,7 @@ cloud:
   aws:
     s3:
       bucket: ssafytripbucket
-      region: ap-northeast-2
+      region: us-east-1
   stack:
     auto: false
 
