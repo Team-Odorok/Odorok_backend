@@ -14,4 +14,9 @@ public class UserQueryServiceImpl implements UserQueryService{
     public User queryUserByEmail(String email) {
         return authUserRepository.findByEmail(email).orElseThrow(()->new EmailNotFoundException("전달된 이메일을 찾을 수 없습니다. (이메일 : "+email+")"));
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return authUserRepository.existsByEmail(email);
+    }
 }

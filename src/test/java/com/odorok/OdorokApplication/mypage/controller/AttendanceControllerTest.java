@@ -7,7 +7,9 @@ import com.odorok.OdorokApplication.mypage.dto.response.AttendanceResponseDto;
 import com.odorok.OdorokApplication.mypage.repository.AttendanceRepository;
 import com.odorok.OdorokApplication.mypage.service.AttendanceService;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
 import com.odorok.OdorokApplication.security.repository.AuthUserRepository;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,9 @@ public class AttendanceControllerTest {
 
     @MockitoBean
     private AuthUserRepository authUserRepository;
+
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
 
     private User testUser;
     private CustomUserDetails customUserDetails;

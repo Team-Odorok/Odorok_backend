@@ -4,6 +4,8 @@ import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.domain.User;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
+import com.odorok.OdorokApplication.security.filter.KakaoLoginFilter;
+import com.odorok.OdorokApplication.security.service.UserQueryService;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
 import com.odorok.OdorokApplication.visitedCourse.service.VisitedCourseService;
@@ -47,6 +49,10 @@ public class VisitedCourseControllerTest {
 
     @MockitoBean
     private VisitedCourseService visitedCourseService;
+
+    @MockitoBean
+    private KakaoLoginFilter kakaoLoginFilter;
+
 
     private CustomUserDetails testUserDetails;
     private final long testUserId = 1L;

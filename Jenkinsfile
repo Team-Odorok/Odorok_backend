@@ -33,7 +33,8 @@ pipeline {
         KAKAO_REST_KEY      = credentials('KAKAO_REST_KEY')
         GPT_API_KEY         = credentials('GPT_API_KEY')
         AWS_ACCESS_KEY      = credentials('AWS_ACCESS_KEY')
-        AWS_SECRET_KEY      = credentials('AWS_SECRET_KEY')
+        AWS_SECRET_KEY      = credentials('AWS_SECRET_KEY'),
+        KAKAO_PASSWORD_SECRET = credentialsId('KAKAO_PASSWORD_SECRET')
         // 필요 시 DB도 여기서:
         // DB_URL              = credentials('DB_URL')
         // DB_USERNAME         = credentials('DB_USERNAME')
@@ -82,7 +83,8 @@ pipeline {
             string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_KEY'),
             string(credentialsId: 'DB_URL', variable: 'DB_URL'),
             string(credentialsId: 'DB_USERNAME', variable: 'DB_USERNAME'),
-            string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+            string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
+            string(credentialsId: 'KAKAO_PASSWORD_SECRET', variable: 'KAKAO_PASSWORD_SECRET')
         ]) {
           sh '''
             set -eu
@@ -101,6 +103,7 @@ pipeline {
             -e SPRING_PROFILES_ACTIVE=docker \
             -e KAKAO_CLIENT_ID \
             -e KAKAO_CLIENT_SECRET \
+            -e KAKAO_PASSWORD_SECRET \
             -e JWT_SECRET \
             -e KAKAO_REST_KEY \
             -e GPT_API_KEY \
