@@ -80,9 +80,11 @@ public class MyPageServiceImpl implements MyPageService{
         }
         Profile userProfile = Profile.builder().userId(id).activityPoint(0)
                 .mileage(0).imgUrl("").msgFrequency(request.getMsgFrequency()).msgAgree(request.getMsgAgree()).
-                sidoCode(request.getSidoCode()).sigunguCode(request.getSigunguCode()).diaryId(request.getDiaryId()).build();
+                sidoCode(request.getSidoCode()).sigunguCode(request.getSigunguCode()).tierId(1L).build();
         //이미지 추가
-        userProfile.setImgUrl(imgUrlList.get(0));
+        if(imgUrlList!=null) {
+            userProfile.setImgUrl(imgUrlList.get(0));
+        }
         profileRepository.save(userProfile);
 
     }
