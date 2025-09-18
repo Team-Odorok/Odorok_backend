@@ -207,6 +207,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
     private OrderSpecifier<?>[] displayOrder(String sort) {
+        if (sort == null) {
+            return new OrderSpecifier<?>[]{article.id.desc()};
+        }
         switch (sort) {
             case "likeCount":
                 return new OrderSpecifier<?>[]{article.likeCount.desc(), article.id.desc()};
