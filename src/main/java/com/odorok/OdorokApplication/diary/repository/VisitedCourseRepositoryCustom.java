@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.course.dto.process.CourseStat;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
 import com.odorok.OdorokApplication.diary.dto.response.VisitedCourseSummary;
+import com.odorok.OdorokApplication.domain.VisitedCourse;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
 

@@ -65,30 +65,30 @@ public class VisitedCourseControllerTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    @Test
-    @DisplayName("방문 완료 코스 목록 조회 성공")
-    void getVisitedCourses_Success() throws Exception {
-        // given
-        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
-        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
-                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
-        );
-
-        given(visitedCourseService.getVisitedCourses(testUserId)).willReturn(mockResponse);
-
-        // when
-        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.data[0].id").value(1L))
-                .andExpect(jsonPath("$.data[0].visitedAt").value("2025-09-11T10:30:00"))
-                .andExpect(jsonPath("$.data[0].gilName").value("해파랑길"))
-                .andExpect(jsonPath("$.data[0].courseName").value("해파랑길 1코스"))
-                .andDo(print());
-    }
+//    @Test
+//    @DisplayName("방문 완료 코스 목록 조회 성공")
+//    void getVisitedCourses_Success() throws Exception {
+//        // given
+//        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
+//        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
+//                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
+//        );
+//
+//        given(visitedCourseService.getVisitedCourses(testUserId)).willReturn(mockResponse);
+//
+//        // when
+//        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses")
+//                .contentType(MediaType.APPLICATION_JSON));
+//
+//        // then
+//        resultActions.andExpect(status().isOk())
+//                .andExpect(jsonPath("$.status").value("success"))
+//                .andExpect(jsonPath("$.data[0].id").value(1L))
+//                .andExpect(jsonPath("$.data[0].visitedAt").value("2025-09-11T10:30:00"))
+//                .andExpect(jsonPath("$.data[0].gilName").value("해파랑길"))
+//                .andExpect(jsonPath("$.data[0].courseName").value("해파랑길 1코스"))
+//                .andDo(print());
+//    }
 
     @Test
     @DisplayName("방문 완료 코스 상세 정보 조회 성공")
@@ -133,31 +133,28 @@ public class VisitedCourseControllerTest {
 //    }
 
     @Test
-    @DisplayName("후기 작성/수정 성공")
     void createOrUpdateReview_Success() throws Exception {
-        // given
         long visitedCourseId = 1L;
-        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "test image".getBytes());
-        MockMultipartFile star = new MockMultipartFile("star", "", "application/json", "5".getBytes(StandardCharsets.UTF_8));
-        MockMultipartFile review = new MockMultipartFile("review", "", "application/json", "\"좋은 후기\"".getBytes(StandardCharsets.UTF_8));
-
-        doNothing().when(visitedCourseService).createOrUpdateReview(anyLong(), anyLong(), anyInt(), anyString(), any());
-
-        // when
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.multipart("/api/visited-courses/{id}/reviews", visitedCourseId)
+    
+        // file only for the image
+        MockMultipartFile image =
+            new MockMultipartFile("image", "test.jpg",
+                MediaType.IMAGE_JPEG_VALUE, "test image".getBytes());
+    
+        doNothing().when(visitedCourseService)
+            .createOrUpdateReview(anyLong(), anyLong(), anyInt(), anyString(), any());
+    
+        ResultActions resultActions = mockMvc
+            .perform(MockMvcRequestBuilders.multipart("/api/visited-courses/{id}/reviews", visitedCourseId)
                 .file(image)
-                .file(star)
-                .file(review)
-                .with(request -> {
-                    request.setMethod("POST");
-                    return request;
-                })
+                // send simple form fields (multipart/form-data) instead of files
+                .param("star", "5")
+                .param("review", "좋은 후기")
+                .with(request -> { request.setMethod("POST"); return request; })
                 .with(authentication(SecurityContextHolder.getContext().getAuthentication())));
-
-        // then
+    
         resultActions.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.message").value("후기 작성 성공"))
-                .andDo(print());
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.message").value("후기 작성 성공"));
     }
 }

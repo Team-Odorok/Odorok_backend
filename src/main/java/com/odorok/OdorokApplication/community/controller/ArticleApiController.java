@@ -44,7 +44,7 @@ public class ArticleApiController {
     @ApiResponse(responseCode = "200", description = "data 없음")
     @PostMapping("")
     public ResponseEntity<ResponseRoot<Void>> registArticle(@RequestPart("data") ArticleRegistRequest request,
-                                                            @RequestPart("images") List<MultipartFile> images,
+                                                            @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                             @AuthenticationPrincipal CustomUserDetails user) {
         log.debug("Request to /api/articles for registration with data: {}, images count: {}", request, images.size());
         long userId = user.getUserId();

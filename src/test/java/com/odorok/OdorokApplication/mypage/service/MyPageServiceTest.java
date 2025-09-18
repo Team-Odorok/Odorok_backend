@@ -152,7 +152,7 @@ class MyPageServiceTest {
         when(req.getSmoking()).thenReturn(Boolean.TRUE);
         when(req.getDrinkPerWeek()).thenReturn(3);
         when(req.getExercisePerWeek()).thenReturn(2);
-        when(req.getNewDiseaseList()).thenReturn(List.of(11L, 22L, 33L));
+        when(req.getDiseaseList()).thenReturn(List.of(11L, 22L, 33L));
 
         ArgumentCaptor<UserDisease> captor = ArgumentCaptor.forClass(UserDisease.class);
 
