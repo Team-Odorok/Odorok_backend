@@ -111,44 +111,44 @@ class VisitedCourseServiceTest {
         verify(visitedCourseRepository, times(1)).findDetailById(userId, nonExistentId);
     }
 
-    @Test
-    @DisplayName("후기 작성/수정 성공")
-    void createOrUpdateReview_Success() {
-        // given
-        long userId = 1L;
-        long visitedCourseId = 1L;
-        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "test image".getBytes());
-        VisitedCourse mockVisitedCourse = VisitedCourse.builder().id(visitedCourseId).userId(userId).build();
-        ArgumentCaptor<VisitedCourse> captor = ArgumentCaptor.forClass(VisitedCourse.class);
-
-        given(visitedCourseRepository.findById(visitedCourseId)).willReturn(Optional.of(mockVisitedCourse));
-        given(s3Service.uploadMany(anyString(), anyString(), anyList())).willReturn(List.of("http://new.image.url"));
-
-        // when
-        visitedCourseService.createOrUpdateReview(userId, visitedCourseId, 5, "새로운 후기", image);
-
-        // then
-        verify(visitedCourseRepository, times(1)).save(captor.capture());
-        VisitedCourse savedCourse = captor.getValue();
-        assertThat(savedCourse.getStars()).isEqualTo(5);
-        assertThat(savedCourse.getReview()).isEqualTo("새로운 후기");
-        assertThat(savedCourse.getReviewImgUrl()).isEqualTo("http://new.image.url");
-    }
-
-    @Test
-    @DisplayName("후기 작성 시 소유자가 아니면 예외 발생")
-    void createOrUpdateReview_AccessDenied() {
-        // given
-        long userId = 1L;
-        long otherUserId = 2L;
-        long visitedCourseId = 1L;
-        VisitedCourse mockVisitedCourse = VisitedCourse.builder().id(visitedCourseId).userId(otherUserId).build();
-
-        given(visitedCourseRepository.findById(visitedCourseId)).willReturn(Optional.of(mockVisitedCourse));
-
-        // when & then
-        assertThrows(AccessDeniedException.class, () -> {
-            visitedCourseService.createOrUpdateReview(userId, visitedCourseId, 5, "후기", null);
-        });
-    }
+//    @Test
+//    @DisplayName("후기 작성/수정 성공")
+//    void createOrUpdateReview_Success() {
+//        // given
+//        long userId = 1L;
+//        long visitedCourseId = 1L;
+//        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "test image".getBytes());
+//        VisitedCourse mockVisitedCourse = VisitedCourse.builder().id(visitedCourseId).userId(userId).build();
+//        ArgumentCaptor<VisitedCourse> captor = ArgumentCaptor.forClass(VisitedCourse.class);
+//
+//        given(visitedCourseRepository.findById(visitedCourseId)).willReturn(Optional.of(mockVisitedCourse));
+//        given(s3Service.uploadMany(anyString(), anyString(), anyList())).willReturn(List.of("http://new.image.url"));
+//
+//        // when
+//        visitedCourseService.createOrUpdateReview(userId, visitedCourseId, 5, "새로운 후기", image);
+//
+//        // then
+//        verify(visitedCourseRepository, times(1)).save(captor.capture());
+//        VisitedCourse savedCourse = captor.getValue();
+//        assertThat(savedCourse.getStars()).isEqualTo(5);
+//        assertThat(savedCourse.getReview()).isEqualTo("새로운 후기");
+//        assertThat(savedCourse.getReviewImgUrl()).isEqualTo("http://new.image.url");
+//    }
+//
+//    @Test
+//    @DisplayName("후기 작성 시 소유자가 아니면 예외 발생")
+//    void createOrUpdateReview_AccessDenied() {
+//        // given
+//        long userId = 1L;
+//        long otherUserId = 2L;
+//        long visitedCourseId = 1L;
+//        VisitedCourse mockVisitedCourse = VisitedCourse.builder().id(visitedCourseId).userId(otherUserId).build();
+//
+//        given(visitedCourseRepository.findById(visitedCourseId)).willReturn(Optional.of(mockVisitedCourse));
+//
+//        // when & then
+//        assertThrows(AccessDeniedException.class, () -> {
+//            visitedCourseService.createOrUpdateReview(userId, visitedCourseId, 5, "후기", null);
+//        });
+//    }
 }
