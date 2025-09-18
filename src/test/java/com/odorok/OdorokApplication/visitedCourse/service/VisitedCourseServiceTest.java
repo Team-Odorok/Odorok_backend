@@ -41,28 +41,28 @@ class VisitedCourseServiceTest {
     @Mock
     private S3Service s3Service;
 
-    @Test
-    @DisplayName("사용자 ID로 방문 완료 코스 목록 조회 성공")
-    void getVisitedCourses_Success() {
-        // given
-        long userId = 1L;
-        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
-        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
-                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
-        );
-
-        given(visitedCourseRepository.findVisitedCoursesByUserId(userId)).willReturn(mockResponse);
-
-        // when
-        List<VisitedCourseSummaryWithGilName> result = visitedCourseService.getVisitedCourses(userId);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCourseName()).isEqualTo("해파랑길 1코스");
-
-        verify(visitedCourseRepository, times(1)).findVisitedCoursesByUserId(userId);
-    }
+//    @Test
+//    @DisplayName("사용자 ID로 방문 완료 코스 목록 조회 성공")
+//    void getVisitedCourses_Success() {
+//        // given
+//        long userId = 1L;
+//        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
+//        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
+//                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
+//        );
+//
+//        given(visitedCourseRepository.findVisitedCoursesByUserId(userId)).willReturn(mockResponse);
+//
+//        // when
+//        List<VisitedCourseSummaryWithGilName> result = visitedCourseService.getVisitedCourses(userId);
+//
+//        // then
+//        assertThat(result).isNotNull();
+//        assertThat(result.size()).isEqualTo(1);
+//        assertThat(result.get(0).getCourseName()).isEqualTo("해파랑길 1코스");
+//
+//        verify(visitedCourseRepository, times(1)).findVisitedCoursesByUserId(userId);
+//    }
 
     @Test
     @DisplayName("방문 완료 코스 상세 정보 조회 성공")

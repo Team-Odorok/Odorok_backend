@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.commons.response.CommonResponseBuilder;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
 import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
+import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseResponseInfo;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
 import com.odorok.OdorokApplication.visitedCourse.service.VisitedCourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,11 +25,11 @@ public class VisitedCourseController {
     private final VisitedCourseService visitedCourseService;
 
     @GetMapping
-    @Operation(summary = "방문 완료한 코스 목록 조회", description = "사용자가 방문 완료한 코스 목록을 조회합니다.")
-    public ResponseEntity<ResponseRoot<List<VisitedCourseSummaryWithGilName>>> getVisitedCourses(
+    @Operation(summary = "방문 완료한 코스 목록,후기 동시조회", description = "사용자가 방문 완료한 코스 목록을 조회하고 후기가 존재한다면 따로 보냄")
+    public ResponseEntity<ResponseRoot<VisitedCourseResponseInfo>> getVisitedCourses(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        List<VisitedCourseSummaryWithGilName> visitedCourses = visitedCourseService.getVisitedCourses(userId);
+        VisitedCourseResponseInfo visitedCourses = visitedCourseService.getVisitedCourses(userId);
         return ResponseEntity.ok(CommonResponseBuilder.success("방문 완료 코스 목록 조회 성공", visitedCourses));
     }
 
