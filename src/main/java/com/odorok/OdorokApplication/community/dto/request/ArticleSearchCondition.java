@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ArticleSearchCondition {
-    private Integer pageNum;
+    private Integer pageNum = 1;
     private Integer currentPageNum;
     private String sort;
     private Long firstId;
