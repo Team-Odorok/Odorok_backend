@@ -97,12 +97,13 @@ public class MyPageServiceImpl implements MyPageService{
         healthInfo.setDrinkPerWeek(healthProfileUpdateRequest.getDrinkPerWeek());
         healthInfo.setExercisePerWeek(healthProfileUpdateRequest.getExercisePerWeek());
         userDiseaseRepository.deleteAllByUserId(id);
-
-        for(Long i : healthProfileUpdateRequest.getNewDiseaseList()){
-            UserDisease userDisease = UserDisease.builder()
-                    .diseaseId(i).userId(id).createdAt(LocalDateTime.now())
-                    .build();
-            userDiseaseRepository.save(userDisease);
+        if(healthProfileUpdateRequest.getNewDiseaseList()!=null) {
+           for(Long i : healthProfileUpdateRequest.getNewDiseaseList()){
+                UserDisease userDisease = UserDisease.builder()
+                        .diseaseId(i).userId(id).createdAt(LocalDateTime.now())
+                        .build();
+                userDiseaseRepository.save(userDisease);
+           }
         }
     }
 
