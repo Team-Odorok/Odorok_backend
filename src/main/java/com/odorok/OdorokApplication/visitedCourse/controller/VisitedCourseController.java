@@ -18,10 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/visited-courses")
 @RequiredArgsConstructor
-@Slf4j
 public class VisitedCourseController {
 
     private final VisitedCourseService visitedCourseService;
@@ -43,7 +43,7 @@ public class VisitedCourseController {
     public ResponseEntity<ResponseRoot<VisitedCourseDetail>> getVisitedCourseDetail(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("visited-courses_id") Long visitedCourseId) {
-        log.debug("Request to /api/visited-courses/{} for details", visitedCourseId);
+        log.debug("Request to /api/visited-courses/{} for details by user: {}", visitedCourseId, userDetails.getUserId());
         Long userId = userDetails.getUserId();
         VisitedCourseDetail visitedCourseDetail = visitedCourseService.getVisitedCourseDetail(userId, visitedCourseId);
         ResponseEntity<ResponseRoot<VisitedCourseDetail>> response = ResponseEntity.ok(CommonResponseBuilder.success("방문 완료 코스 상세 정보 조회 성공", visitedCourseDetail));
