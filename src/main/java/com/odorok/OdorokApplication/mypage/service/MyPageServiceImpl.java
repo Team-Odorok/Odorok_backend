@@ -13,6 +13,7 @@ import com.odorok.OdorokApplication.domain.UserDisease;
 import com.odorok.OdorokApplication.draftDomain.Profile;
 import com.odorok.OdorokApplication.draftDomain.Tier;
 import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.request.ProfileInsertRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
@@ -58,7 +59,9 @@ public class MyPageServiceImpl implements MyPageService{
             //이미지 삭제
             Profile userProfile = profileRepository.findByUserId(id).orElseThrow();
             String beforeImgUrl = userProfile.getImgUrl();
-            myPageImageService.deleteImages(List.of(beforeImgUrl));
+            if(!beforeImgUrl.equals("")||beforeImgUrl!=null) {
+                myPageImageService.deleteImages(List.of(beforeImgUrl));
+            }
             //이미지 추가
             List<String> imgUrlList = myPageImageService.insertProfileImage(id,images);
             //프로필 변경
@@ -67,6 +70,21 @@ public class MyPageServiceImpl implements MyPageService{
         }
         //이후 트랜잭셔널하게 유저와 프로필의 정보를 변경해줄 것
         myPageTransactionService.updateUserProfile(id,request);
+    }
+
+    @Override
+    public void insertUserProfile(Long id, ProfileInsertRequest request, List<MultipartFile> images) {
+        List<String> imgUrlList = null;
+        if(images!=null&&images.size()==1) {
+            imgUrlList = myPageImageService.insertProfileImage(id, images);
+        }
+        Profile userProfile = Profile.builder().userId(id).activityPoint(0)
+                .mileage(0).imgUrl("").msgFrequency(request.getMsgFrequency()).msgAgree(request.getMsgAgree()).
+                sidoCode(request.getSidoCode()).sigunguCode(request.getSigunguCode()).diaryId(request.getDiaryId()).build();
+        //이미지 추가
+        userProfile.setImgUrl(imgUrlList.get(0));
+        profileRepository.save(userProfile);
+
     }
 
     @Override
@@ -97,8 +115,8 @@ public class MyPageServiceImpl implements MyPageService{
         healthInfo.setDrinkPerWeek(healthProfileUpdateRequest.getDrinkPerWeek());
         healthInfo.setExercisePerWeek(healthProfileUpdateRequest.getExercisePerWeek());
         userDiseaseRepository.deleteAllByUserId(id);
-        if(healthProfileUpdateRequest.getNewDiseaseList()!=null) {
-           for(Long i : healthProfileUpdateRequest.getNewDiseaseList()){
+        if(healthProfileUpdateRequest.getDiseaseList()!=null) {
+           for(Long i : healthProfileUpdateRequest.getDiseaseList()){
                 UserDisease userDisease = UserDisease.builder()
                         .diseaseId(i).userId(id).createdAt(LocalDateTime.now())
                         .build();
