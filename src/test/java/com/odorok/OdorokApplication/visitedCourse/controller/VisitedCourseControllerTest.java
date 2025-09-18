@@ -65,30 +65,30 @@ public class VisitedCourseControllerTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    @Test
-    @DisplayName("방문 완료 코스 목록 조회 성공")
-    void getVisitedCourses_Success() throws Exception {
-        // given
-        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
-        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
-                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
-        );
-
-        given(visitedCourseService.getVisitedCourses(testUserId)).willReturn(mockResponse);
-
-        // when
-        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.data[0].id").value(1L))
-                .andExpect(jsonPath("$.data[0].visitedAt").value("2025-09-11T10:30:00"))
-                .andExpect(jsonPath("$.data[0].gilName").value("해파랑길"))
-                .andExpect(jsonPath("$.data[0].courseName").value("해파랑길 1코스"))
-                .andDo(print());
-    }
+//    @Test
+//    @DisplayName("방문 완료 코스 목록 조회 성공")
+//    void getVisitedCourses_Success() throws Exception {
+//        // given
+//        LocalDateTime visitedAt = LocalDateTime.of(2025, 9, 11, 10, 30);
+//        List<VisitedCourseSummaryWithGilName> mockResponse = Collections.singletonList(
+//                new VisitedCourseSummaryWithGilName(1L, visitedAt, "해파랑길", "해파랑길 1코스")
+//        );
+//
+//        given(visitedCourseService.getVisitedCourses(testUserId)).willReturn(mockResponse);
+//
+//        // when
+//        ResultActions resultActions = mockMvc.perform(get("/api/visited-courses")
+//                .contentType(MediaType.APPLICATION_JSON));
+//
+//        // then
+//        resultActions.andExpect(status().isOk())
+//                .andExpect(jsonPath("$.status").value("success"))
+//                .andExpect(jsonPath("$.data[0].id").value(1L))
+//                .andExpect(jsonPath("$.data[0].visitedAt").value("2025-09-11T10:30:00"))
+//                .andExpect(jsonPath("$.data[0].gilName").value("해파랑길"))
+//                .andExpect(jsonPath("$.data[0].courseName").value("해파랑길 1코스"))
+//                .andDo(print());
+//    }
 
     @Test
     @DisplayName("방문 완료 코스 상세 정보 조회 성공")

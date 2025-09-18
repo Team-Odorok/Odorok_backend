@@ -2,6 +2,9 @@ package com.odorok.OdorokApplication.diary.repository;
 
 import com.odorok.OdorokApplication.course.dto.process.CourseStat;
 import com.odorok.OdorokApplication.domain.VisitedCourse;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseView;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseInfo;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +29,17 @@ public interface VisitedCourseRepository extends JpaRepository<VisitedCourse, Lo
     List<Integer> findAllDistanceByUserId(@Param("userId")Long id);
 
     Optional<VisitedCourse> findByUserIdAndCourseId(Long userId, Long courseId);
+    @Query(value = """
+        SELECT
+          v.visited_at AS visitedAt,
+          v.course_id  AS courseId,
+          v.distance   AS distance,
+          v.stars      AS stars,
+          v.review     AS review,
+          c.name       AS courseName
+        FROM visited_courses v
+        JOIN courses c ON c.id = v.course_id
+        WHERE v.user_id = :userId
+        """, nativeQuery = true)
+    List<VisitedCourseView> findVisitedCoursesAndReviewByUserId(@Param("userId") Long userId);
 }

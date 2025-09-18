@@ -5,14 +5,19 @@ import com.odorok.OdorokApplication.diary.dto.gpt.VisitedAdditionalAttraction;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.domain.VisitedCourse;
 import com.odorok.OdorokApplication.s3.service.S3Service;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.CourseReview;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseView;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseInfo;
+import com.odorok.OdorokApplication.visitedCourse.dto.dto.VisitedCourseView;
 import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseDetail;
-import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseSummaryWithGilName;
+import com.odorok.OdorokApplication.visitedCourse.dto.response.VisitedCourseResponseInfo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,8 +28,19 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
     private final S3Service s3Service;
 
     @Override
-    public List<VisitedCourseSummaryWithGilName> getVisitedCourses(Long userId) {
-        return visitedCourseRepository.findVisitedCoursesByUserId(userId);
+    public VisitedCourseResponseInfo getVisitedCourses(Long userId) {
+        List<VisitedCourseView> courseList = visitedCourseRepository.findVisitedCoursesAndReviewByUserId(userId);
+        List<CourseReview> reviewList = new ArrayList<>();
+        List<VisitedCourseInfo> courseInfoList = new ArrayList<>();
+        for(VisitedCourseView vc : courseList){
+            courseInfoList.add(VisitedCourseInfo.builder().courseName(vc.getCourseName()).visitedAt(vc.getVisitedAt())
+                    .distance(vc.getDistance()).courseId(vc.getCourseId()).build());
+            if(vc.getReview()!=null || vc.getStars()!=null){
+                reviewList.add(CourseReview.builder().review(vc.getReview()).stars(vc.getStars()).courseName(vc.getCourseName())
+                        .courseId(vc.getCourseId()).build());
+            }
+        }
+        return VisitedCourseResponseInfo.builder().coursesList(courseInfoList).reviewList(reviewList).build();
     }
 
     @Override
