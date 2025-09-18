@@ -233,6 +233,8 @@ public class CourseApiController {
     @ApiResponse(responseCode = "200", description = "조회 성공 리뷰 데이터가 전송됨")
     @ApiResponse(responseCode = "500", description = "서버 내부에서 조회에 실패하는 경우임.")
     public ResponseEntity<ResponseRoot<VisitationScheduleResponse>> getCourseReviews(@RequestParam("courseId") Long courseId) {
+        log.debug("Request to /api/courses/reviews with courseId: {}", courseId);
+        log.debug("Response from /api/courses/reviews: null");
         return null;
 //        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
 //                .body(CommonResponseBuilder.success("", new VisitationScheduleResponse(summaries)));

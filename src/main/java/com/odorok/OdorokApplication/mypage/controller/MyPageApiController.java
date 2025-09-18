@@ -56,12 +56,15 @@ public class MyPageApiController {
     @Operation(summary = "유저 프로필 추가", description = "유저의 프로필을 추가")
     @ApiResponse(responseCode = "200", description = "반환 데이터 없음")
     @PostMapping("/profile")
-    public ResponseEntity<ResponseRoot<UserStatisticResponse>> insertUserProfile(@RequestPart(name = "data") ProfileInsertRequest request,
+    public ResponseEntity<ResponseRoot<Void>> insertUserProfile(@RequestPart(name = "data") ProfileInsertRequest request,
                                                                                  @RequestPart(name = "images",required = false) List<MultipartFile> images,
                                                                                  @AuthenticationPrincipal CustomUserDetails user){
+        log.debug("Request to /api/me/profile for insertion with request: {}, images count: {}", request, images != null ? images.size() : 0);
         Long id = user.getUserId();
         myPageService.insertUserProfile(id,request,images);
-        return ResponseEntity.ok(CommonResponseBuilder.success("유저 정보를 성공적으로 등록했습니다"));
+        ResponseEntity<ResponseRoot<Void>> response = ResponseEntity.ok(CommonResponseBuilder.success("유저 정보를 성공적으로 등록했습니다"));
+        log.debug("Response from /api/me/profile for insertion: {}", response.getBody());
+        return response;
     }
     @Operation(summary = "유저 건강정보 조회", description = "유저 건강정보 조회가능")
     @ApiResponse(responseCode = "200", description = "유저의 건강정보 반환됨")
