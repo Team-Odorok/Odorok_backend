@@ -4,6 +4,7 @@ import com.odorok.OdorokApplication.commons.response.CommonResponseBuilder;
 import com.odorok.OdorokApplication.commons.response.ResponseRoot;
 import com.odorok.OdorokApplication.community.dto.request.ArticleUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.request.ProfileInsertRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
@@ -38,7 +39,7 @@ public class MyPageApiController {
     @ApiResponse(responseCode = "200", description = "수정 성공시 수정 성공 메시지가 전송됨")
     @PutMapping("/profile")
     public ResponseEntity<ResponseRoot<Void>> updateUserProfile(@RequestPart(name = "data") ProfileUpdateRequest request,
-                                                                @RequestPart(name = "images") List<MultipartFile> images,
+                                                                @RequestPart(name = "images",required = false) List<MultipartFile> images,
                                                                 @AuthenticationPrincipal CustomUserDetails user){
         //서비스에서 입력된 값을 기반으로 변경해줘야 함
         //변경될 값은 서비스에서 자세히 표시
@@ -47,6 +48,16 @@ public class MyPageApiController {
         Long id = user.getUserId();
         myPageService.updateUserProfile(id,request,images);
         return ResponseEntity.ok(CommonResponseBuilder.success("유저 정보를 성공적으로 변경했습니다"));
+    }
+    @Operation(summary = "유저 프로필 추가", description = "유저의 프로필을 추가")
+    @ApiResponse(responseCode = "200", description = "반환 데이터 없음")
+    @PostMapping("/profile")
+    public ResponseEntity<ResponseRoot<UserStatisticResponse>> insertUserProfile(@RequestPart(name = "data") ProfileInsertRequest request,
+                                                                                 @RequestPart(name = "images",required = false) List<MultipartFile> images,
+                                                                                 @AuthenticationPrincipal CustomUserDetails user){
+        Long id = user.getUserId();
+        myPageService.insertUserProfile(id,request,images);
+        return ResponseEntity.ok(CommonResponseBuilder.success("유저 정보를 성공적으로 등록했습니다"));
     }
     @Operation(summary = "유저 건강정보 조회", description = "유저 건강정보 조회가능")
     @ApiResponse(responseCode = "200", description = "유저의 건강정보 반환됨")
@@ -75,4 +86,5 @@ public class MyPageApiController {
         UserStatisticResponse response = myPageService.searchUserStatistics(id);
         return ResponseEntity.ok(CommonResponseBuilder.success("유저 통계내역 반환",response));
     }
+
 }
