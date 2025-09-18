@@ -59,9 +59,9 @@ public class MyPageServiceImpl implements MyPageService{
             //이미지 삭제
             Profile userProfile = profileRepository.findByUserId(id).orElseThrow();
             String beforeImgUrl = userProfile.getImgUrl();
-            if(!beforeImgUrl.equals("")||beforeImgUrl!=null) {
-                myPageImageService.deleteImages(List.of(beforeImgUrl));
-            }
+            //if(!beforeImgUrl.equals("")||beforeImgUrl!=null) {
+                //myPageImageService.deleteImages(List.of(beforeImgUrl));
+            //}
             //이미지 추가
             List<String> imgUrlList = myPageImageService.insertProfileImage(id,images);
             //프로필 변경
