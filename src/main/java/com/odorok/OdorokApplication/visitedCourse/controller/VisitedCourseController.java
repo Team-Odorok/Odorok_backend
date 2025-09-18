@@ -47,9 +47,9 @@ public class VisitedCourseController {
     public ResponseEntity<ResponseRoot<Void>> createOrUpdateReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("visited-courses_id") Long visitedCourseId,
-            @RequestPart("star") int star,
-            @RequestPart("review") String review,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestParam("star") int star,
+            @RequestParam("review") String review,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
         Long userId = userDetails.getUserId();
         visitedCourseService.createOrUpdateReview(userId, visitedCourseId, star, review, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponseBuilder.success("후기 작성 성공"));
