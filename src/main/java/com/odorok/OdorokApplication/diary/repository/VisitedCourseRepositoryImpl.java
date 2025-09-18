@@ -99,7 +99,7 @@ public class VisitedCourseRepositoryImpl implements VisitedCourseRepositoryCusto
     public List<CourseStat> summarizeCourseFeedback() {
         return jpaQueryFactory.select(
                 new QCourseStat(visitedCourses.courseId, visitedCourses.stars.avg(), visitedCourses.review.count(), visitedCourses.id.count())
-                ).from(visitedCourses).groupBy(visitedCourses.courseId).fetch();
+                ).from(visitedCourses).where(visitedCourses.stars.isNotNull()).groupBy(visitedCourses.courseId).fetch();
     }
 
     @Override

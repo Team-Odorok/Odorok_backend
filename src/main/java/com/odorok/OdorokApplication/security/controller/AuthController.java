@@ -33,25 +33,35 @@ public class AuthController {
     @ApiResponse(responseCode = "201", description = "회원가입 성공")
     @ApiResponse(responseCode = "400", description = "중복 아이디 발견")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+        log.debug("Request to /api/auth/signup with request: {}", request);
         try {
             signupService.signup(request);
         } catch(DuplicateUserEmailException e) {
-            log.debug("에러발생 : {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail(e.getMessage()));
+            log.debug("Exception in /api/auth/signup: {}", e.getMessage());
+            ResponseEntity<?> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail(e.getMessage()));
+            log.debug("Error response from /api/auth/signup: {}", response.getBody());
+            return response;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.successCreated("회원가입이 완료되었습니다.", null));
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.successCreated("회원가입이 완료되었습니다.", null));
+        log.debug("Response from /api/auth/signup: {}", response.getBody());
+        return response;
     }
 
     @GetMapping("/refresh-token")
     @Operation(summary = "액세스 토큰 재발행", description = "액세스 토큰 만료시 리프레시 토큰으로 재발행합니다.")
     @ApiResponse(responseCode = "201", description = "액세스 토큰 재생성 성공")
     public ResponseEntity<?> getTokenRefresing(HttpServletRequest request, HttpServletResponse response) {
+        log.debug("Request to /api/auth/refresh-token");
         try {
             authService.refresh(request, response);
         } catch (JWTTokenExpiredException e) {
-            log.debug("액세스 토큰 재발행 실패 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail(e.getMessage()));
+            log.debug("Exception in /api/auth/refresh-token: {}", e.getMessage());
+            ResponseEntity<?> errorResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail(e.getMessage()));
+            log.debug("Error response from /api/auth/refresh-token: {}", errorResponse.getBody());
+            return errorResponse;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.successCreated("액세스 토큰 재발행 성공.", null));
+        ResponseEntity<?> successResponse = ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.successCreated("액세스 토큰 재발행 성공.", null));
+        log.debug("Response from /api/auth/refresh-token: {}", successResponse.getBody());
+        return successResponse;
     }
 }

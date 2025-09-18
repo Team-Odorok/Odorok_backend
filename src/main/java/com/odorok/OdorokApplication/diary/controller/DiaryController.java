@@ -34,21 +34,24 @@ public class DiaryController {
 
     @GetMapping()
     public ResponseEntity<?> searchAllDiaryByUserId(@RequestParam(required = false) String groupBy, @AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/diaries with groupBy: {}", groupBy);
         long userId = user.getUserId();
-        ResponseRoot<?> response;
+        ResponseRoot<?> responseBody;
         if(groupBy != null && groupBy.equals(DIARY_LIST_GROUPING_BY)) {
             // 연도 기준으로 리스트 리턴
             Map<String, List<DiarySummary>> diaryListGroupByYear = diaryService.findAllDiaryGroupByYear(userId);
-            response = success("연도별 일지 목록 조회 성공", diaryListGroupByYear);
+            responseBody = success("연도별 일지 목록 조회 성공", diaryListGroupByYear);
         } else {
             List<DiarySummary> diaryList = diaryService.findAllDiaryByUser(userId);
-            response = success("일지 목록 조회 성공", diaryList);
+            responseBody = success("일지 목록 조회 성공", diaryList);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        log.debug("Response from /api/diaries: {}", responseBody);
+        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
     @GetMapping("/{diaryId}")
     public ResponseEntity<?> searchDiaryById(@PathVariable long diaryId, @AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/diaries/{} for search", diaryId);
         long userId = user.getUserId();
         DiaryDetail diary = diaryService.findDiaryById(userId, diaryId);
         if(diary == null) {
@@ -56,6 +59,7 @@ public class DiaryController {
         }
 
         ResponseRoot<DiaryDetail> response = success("일지 상세 조회 성공", diary);
+        log.debug("Response from /api/diaries/{}: {}", diaryId, response);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -63,9 +67,12 @@ public class DiaryController {
     public ResponseEntity<?> searchDiaryGeneratePermission(
             @AuthenticationPrincipal CustomUserDetails user
     ) {
+        log.debug("Request to /api/diaries/permission for user: {}", user.getUserId());
         long userId = user.getUserId();
-        DiaryPermissionCheckResponse response = diaryService.findDiaryPermission(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(success("일지 생성 가능 조회 성공", response));
+        DiaryPermissionCheckResponse responseBody = diaryService.findDiaryPermission(userId);
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(success("일지 생성 가능 조회 성공", responseBody));
+        log.debug("Response from /api/diaries/permission: {}", response.getBody());
+        return response;
     }
 
     @GetMapping("/generation/{visitedCourseId}")
@@ -73,44 +80,56 @@ public class DiaryController {
                                               @PathVariable Long visitedCourseId,
                                               @AuthenticationPrincipal CustomUserDetails user
     ) {
+        log.debug("Request to /api/diaries/generation/{} with style: {}", visitedCourseId, style);
         if (style == null || style.isBlank()) {
             throw new BadRequestException("스타일은 필수 입력값입니다.");
         }
         long userId = user.getUserId();
 
         DiaryChatResponse chatResponse =  diaryService.insertGeneration(userId, style, visitedCourseId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(success("IN_PROGRESS", "일지 생성 요청 성공", chatResponse));
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.CREATED).body(success("IN_PROGRESS", "일지 생성 요청 성공", chatResponse));
+        log.debug("Response from /api/diaries/generation/{}: {}", visitedCourseId, response.getBody());
+        return response;
     }
 
     @PostMapping("/answers")
     public ResponseEntity<?> registAnswer(@RequestBody DiaryChatAnswerRequest request
             ,@AuthenticationPrincipal CustomUserDetails user
     ) {
+        log.debug("Request to /api/diaries/answers with request: {}", request);
         long userId = user.getUserId();
         DiaryChatResponse chatResponse = diaryService.insertAnswer(userId, request);
-        ResponseRoot<DiaryChatResponse> response = chatResponse.getContent().endsWith("<END>") ?
+        ResponseRoot<DiaryChatResponse> responseBody = chatResponse.getContent().endsWith("<END>") ?
                 successDone("일지 생성 완료", chatResponse) :
                 successInProgress("답변 제출 및 새 질문 요청 성공", chatResponse);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(responseBody);
+        log.debug("Response from /api/diaries/answers: {}", response.getBody());
+        return response;
     }
     @PostMapping("/regeneration")
     public ResponseEntity<?> registRegeneration(@RequestBody DiaryRegenerationRequest request
             ,@AuthenticationPrincipal CustomUserDetails user
     ) {
+        log.debug("Request to /api/diaries/regeneration with request: {}", request);
         long userId = user.getUserId();
         DiaryChatResponse chatResponse = diaryService.insertRegeneration(userId, request);
-        ResponseRoot<DiaryChatResponse> response = successDone("일지 재생성 완료", chatResponse);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseRoot<DiaryChatResponse> responseBody = successDone("일지 재생성 완료", chatResponse);
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(responseBody);
+        log.debug("Response from /api/diaries/regeneration: {}", response.getBody());
+        return response;
     }
 
     @GetMapping("/available-course")
     public ResponseEntity<?> searchVisitedCourseWithoutDiary(
             @AuthenticationPrincipal CustomUserDetails user
     ) {
+        log.debug("Request to /api/diaries/available-course for user: {}", user.getUserId());
         long userId = user.getUserId();
         VisitedCourseWithoutDiaryResponse visitedCourseList = diaryService.findVisitedCourseWithoutDiaryByUserId(userId);
-        ResponseRoot<VisitedCourseWithoutDiaryResponse> response = success("일지 생성 안 된 방문 완료 코스 조회 성공", visitedCourseList);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseRoot<VisitedCourseWithoutDiaryResponse> responseBody = success("일지 생성 안 된 방문 완료 코스 조회 성공", visitedCourseList);
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(responseBody);
+        log.debug("Response from /api/diaries/available-course: {}", response.getBody());
+        return response;
     }
 
     @PostMapping(consumes = "multipart/form-data")
@@ -118,25 +137,34 @@ public class DiaryController {
             @RequestPart("diary") @Valid DiaryRequest diaryRequest,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @AuthenticationPrincipal CustomUserDetails user) {
-                long userId = user.getUserId();
+        log.debug("Request to /api/diaries for finalization with diaryRequest: {}, images count: {}", diaryRequest, images != null ? images.size() : 0);
+        long userId = user.getUserId();
         Long savedDiaryId = diaryService.insertFinalizeDiary(userId, diaryRequest, images);
-        ResponseRoot<Map> response = successCreated("일지 생성 성공", Map.of("diaryId", savedDiaryId));
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ResponseRoot<Map> responseBody = successCreated("일지 생성 성공", Map.of("diaryId", savedDiaryId));
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+        log.debug("Response from /api/diaries for finalization: {}", response.getBody());
+        return response;
     }
 
     @DeleteMapping("/{diaryId}")
     public ResponseEntity<?> deleteDiary(@PathVariable Long diaryId, @AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/diaries/{} for deletion", diaryId);
         long userId = user.getUserId();
         diaryService.deleteDiaryById(userId, diaryId);
-        ResponseRoot<?> response = success("일지 삭제 성공");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseRoot<?> responseBody = success("일지 삭제 성공");
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(responseBody);
+        log.debug("Response from /api/diaries/{}: {}", diaryId, response.getBody());
+        return response;
     }
 
     @PostMapping("/diary-create-items")
     public ResponseEntity<?> getDiaryCreatedItem(@RequestParam Integer quantity, @AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/diaries/diary-create-items with quantity: {}", quantity);
         long userId = user.getUserId();
         diaryService.purchaseDiaryPermissionItem(userId, quantity);
-        ResponseRoot<?> response = success("일지 아이템 구매 성공");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseRoot<?> responseBody = success("일지 아이템 구매 성공");
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(responseBody);
+        log.debug("Response from /api/diaries/diary-create-items: {}", response.getBody());
+        return response;
     }
 }
