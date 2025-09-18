@@ -276,6 +276,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
     private BooleanExpression whereForRemaining(ArticleSearchCondition cond,Integer lastLike,Integer lastView,Long lastId){
         String sort = cond.getSort();
+        if (sort == null) {
+            return andAll(diseaseEqOrNull(cond.getDiseaseId()),(article.id.lt(lastId)));
+        }
         switch(sort){
             case "viewCount":
                 return andAll(diseaseEqOrNull(cond.getDiseaseId()),(article.viewCount.lt(lastView).or(article.viewCount.eq(lastView).and(article.id.lt(lastId)))));
