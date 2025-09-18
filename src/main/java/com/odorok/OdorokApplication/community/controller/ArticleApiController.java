@@ -46,7 +46,7 @@ public class ArticleApiController {
     public ResponseEntity<ResponseRoot<Void>> registArticle(@RequestPart("data") ArticleRegistRequest request,
                                                             @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                             @AuthenticationPrincipal CustomUserDetails user) {
-        log.debug("Request to /api/articles for registration with data: {}, images count: {}", request, images.size());
+        log.debug("Request to /api/articles for registration with data: {}", request);
         long userId = user.getUserId();
         articleService.insertArticle(request, images, userId);
         ResponseEntity<ResponseRoot<Void>> response = ResponseEntity.ok(CommonResponseBuilder.success("게시물이 성공적으로 등록되었습니다."));
@@ -83,7 +83,7 @@ public class ArticleApiController {
                                                             @PathVariable("articles-id") Long articleId,
                                                             @AuthenticationPrincipal CustomUserDetails user
                                                             ) {
-        log.debug("Request to /api/articles/{} for update with data: {}, images count: {}", articleId, request, images.size());
+        log.debug("Request to /api/articles/{} for update with data: {}", articleId, request);
         Long userId = user.getUserId();
         articleService.updateArticle(request,images,articleId,userId);
         ResponseEntity<ResponseRoot<Void>> response = ResponseEntity.ok(CommonResponseBuilder.success("게시물이 성공적으로 수정되었습니다."));
