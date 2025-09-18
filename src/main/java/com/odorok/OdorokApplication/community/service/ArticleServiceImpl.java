@@ -40,14 +40,17 @@ public class ArticleServiceImpl implements ArticleService{
 
     @Override
     public void insertArticle(ArticleRegistRequest request, List<MultipartFile> images, Long userId) {
-        List<String> urls = articleImageService.insertArticleImages(userId,images);
+        List<String> urls = null;
+        if(images!=null){
+            urls = articleImageService.insertArticleImages(userId,images);
+        }
         Article article = Article.builder().title(request.getTitle()).content(request.getContent())
                 .boardType(request.getBoardType()).notice(request.getNotice()).likeCount(0).viewCount(0).commentCount(0)
                 .diseaseId(request.getDiseaseId()).courseId(request.getCourseId()).userId(userId).build();
         try {
             articleTransactionService.insertArticleTransactional(article, urls, userId);  // 트랜잭션 메서드
         } catch (Exception e) {
-            articleImageService.deleteImages(urls); // 수동 롤백
+            //articleImageService.deleteImages(urls); // 수동 롤백
             throw e;
         }
     }
@@ -79,11 +82,16 @@ public class ArticleServiceImpl implements ArticleService{
     @CheckArticleOwner(articleId = "articleId")
     public void updateArticle(ArticleUpdateRequest request, List<MultipartFile> images,Long articleId,Long userId) {
         //s3에 이미지 삽입
-        List<String> newUrlList = articleImageService.insertArticleImages(userId,images);
+        List<String> newUrlList = null;
+        if(images!=null){
+            newUrlList = articleImageService.insertArticleImages(userId,images);
+        }
         //db트랜잭션 작업 후 이전 urlList 반환
-        List<String> oldUrlList = articleTransactionService.updateArticleInfo(request,newUrlList,articleId);
+        if(newUrlList!=null){
+            List<String> oldUrlList = articleTransactionService.updateArticleInfo(request,newUrlList,articleId);
+        }
         //s3에서 url이용하여 이미지 삭제
-        articleImageService.deleteImages(oldUrlList);
+        //articleImageService.deleteImages(oldUrlList);
 
     }
 
