@@ -42,4 +42,6 @@ public interface VisitedCourseRepository extends JpaRepository<VisitedCourse, Lo
         WHERE v.user_id = :userId
         """, nativeQuery = true)
     List<VisitedCourseView> findVisitedCoursesAndReviewByUserId(@Param("userId") Long userId);
+
+    Optional<VisitedCourse> findByCourseIdAndUserId(Long visitedCourseId, Long userId);
 }
