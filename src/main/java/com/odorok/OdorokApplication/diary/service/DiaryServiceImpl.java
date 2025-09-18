@@ -125,8 +125,8 @@ public class DiaryServiceImpl implements DiaryService{
                 .map(DiaryImage::getImgUrl)
                 .collect(Collectors.toList());
 
-        log.info("일지 이미지 삭제 시작: diaryId={}, imageCount={}", diaryId, imgUrls.size());
-        diaryImageService.deleteDiaryImages(imgUrls);
+//        log.info("일지 이미지 삭제 시작: diaryId={}, imageCount={}", diaryId, imgUrls.size());
+//        diaryImageService.deleteDiaryImages(imgUrls);
 
         // 다이어리 삭제
         diaryRepository.deleteById(diaryId);
@@ -248,7 +248,7 @@ public class DiaryServiceImpl implements DiaryService{
 
             return savedDiary.getId();
         } catch (Exception e) {
-            diaryImageService.deleteDiaryImages(imageUrls);
+//            diaryImageService.deleteDiaryImages(imageUrls);
             log.error("일지 DB 등록 중 예외 발생 - 이미지 정리 후 예외 전파", e);
             throw e;
         }
