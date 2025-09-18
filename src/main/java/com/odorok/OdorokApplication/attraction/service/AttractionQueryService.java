@@ -10,4 +10,5 @@ public interface AttractionQueryService {
     List<ContentTypeSummary> queryAllContentTypes();
     List<AttractionSummary> queryRegionalAttractions(Integer sidoCode, Integer sigunguCode, Integer ContentTypeId);
     AttractionDetail queryAttractionDetail(Long id);
+    List<AttractionSummary> queryCourseCloseAttractions(Long courseId, Integer contentTypeId);
 }

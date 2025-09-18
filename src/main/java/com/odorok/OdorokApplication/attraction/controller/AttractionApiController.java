@@ -66,4 +66,17 @@ public class AttractionApiController {
             return response;
         }
     }
+
+    @GetMapping("/around")
+    public ResponseEntity<ResponseRoot<AttractionResponse>> getCourseAroundAttractions(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("contentTypeId") Integer contentTypeId) {
+        log.debug("Request to /api/attractions/around with courseId: {}, contentTypeId: {}", courseId, contentTypeId);
+        ResponseEntity<ResponseRoot<AttractionResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+                .body(CommonResponseBuilder.success("지역 명소 조회 성공",
+                        new AttractionResponse(attractionQueryService.queryCourseCloseAttractions(courseId, contentTypeId))));
+
+        log.debug("Response from /api/attractions/around: {}", response.getBody());
+        return response;
+    }
 }
