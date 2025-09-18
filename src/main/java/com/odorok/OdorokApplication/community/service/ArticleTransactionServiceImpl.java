@@ -48,7 +48,9 @@ public class ArticleTransactionServiceImpl implements ArticleTransactionService{
         //기존 url db에서 삭제(리턴되어야 함)
         List<String> list = articleImageService.deleteArticleImageUrl(articleId);
         //새로운 url db삽입
-        articleImageService.insertArticleImageUrl(articleId,newUrlList);
+        if(newUrlList!=null){
+            articleImageService.insertArticleImageUrl(articleId,newUrlList);
+        }
         //텍스트 변경
         Article article = articleRepository.getById(articleId);
         article.setTitle(request.getTitle());

@@ -82,11 +82,16 @@ public class ArticleServiceImpl implements ArticleService{
     @CheckArticleOwner(articleId = "articleId")
     public void updateArticle(ArticleUpdateRequest request, List<MultipartFile> images,Long articleId,Long userId) {
         //s3에 이미지 삽입
-        List<String> newUrlList = articleImageService.insertArticleImages(userId,images);
+        List<String> newUrlList = null;
+        if(images!=null){
+            newUrlList = articleImageService.insertArticleImages(userId,images);
+        }
         //db트랜잭션 작업 후 이전 urlList 반환
-        List<String> oldUrlList = articleTransactionService.updateArticleInfo(request,newUrlList,articleId);
+        if(newUrlList!=null){
+            List<String> oldUrlList = articleTransactionService.updateArticleInfo(request,newUrlList,articleId);
+        }
         //s3에서 url이용하여 이미지 삭제
-        articleImageService.deleteImages(oldUrlList);
+        //articleImageService.deleteImages(oldUrlList);
 
     }
 
