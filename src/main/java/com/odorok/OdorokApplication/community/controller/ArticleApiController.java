@@ -41,7 +41,7 @@ public class ArticleApiController {
     @ApiResponse(responseCode = "200", description = "data 없음")
     @PostMapping("")
     public ResponseEntity<ResponseRoot<Void>> registArticle(@RequestPart("data") ArticleRegistRequest request,
-                                                            @RequestPart("images") List<MultipartFile> images,
+                                                            @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                             @AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
         articleService.insertArticle(request, images, userId);
