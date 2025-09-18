@@ -64,13 +64,8 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
     @Transactional
     public void createOrUpdateReview(Long userId, Long visitedCourseId, int star, String review, MultipartFile reviewImage) {
         // visitedCourse 조회
-        VisitedCourse visitedCourse = visitedCourseRepository.findById(visitedCourseId)
+        VisitedCourse visitedCourse = visitedCourseRepository.findByCourseIdAndUserId(visitedCourseId,userId)
                 .orElseThrow(() -> new NotFoundException("해당 방문 코스 정보를 찾을 수 없습니다."));
-
-        // 사용자 방문 코스인지 확인
-        if (!visitedCourse.getUserId().equals(userId)) {
-            throw new AccessDeniedException("후기를 작성할 권한이 없습니다.");
-        }
 
         // 후기 이미지 업로드
         if (reviewImage != null && !reviewImage.isEmpty()) {
