@@ -79,7 +79,7 @@ public class ArticleApiController {
     @ApiResponse(responseCode = "200", description = "data없음")
     @PutMapping("/{articles-id}")
     public ResponseEntity<ResponseRoot<Void>> updateArticle(@RequestPart(name = "data") ArticleUpdateRequest request,
-                                                            @RequestPart(name = "images") List<MultipartFile> images,
+                                                            @RequestPart(name = "images", required = false) List<MultipartFile> images,
                                                             @PathVariable("articles-id") Long articleId,
                                                             @AuthenticationPrincipal CustomUserDetails user
                                                             ) {
