@@ -17,5 +17,5 @@ public class HealthProfileUpdateRequest {
     private Boolean smoking;
     private Integer drinkPerWeek;
     private Integer exercisePerWeek;
-    private List<Long> newDiseaseList;
+    private List<Long> diseaseList;
 }

@@ -1,6 +1,7 @@
 package com.odorok.OdorokApplication.mypage.service;
 
 import com.odorok.OdorokApplication.mypage.dto.request.HealthProfileUpdateRequest;
+import com.odorok.OdorokApplication.mypage.dto.request.ProfileInsertRequest;
 import com.odorok.OdorokApplication.mypage.dto.request.ProfileUpdateRequest;
 import com.odorok.OdorokApplication.mypage.dto.response.UserHealthInfoResponse;
 import com.odorok.OdorokApplication.mypage.dto.response.UserInfoResponse;
@@ -17,4 +18,6 @@ public interface MyPageService {
     void updateUserHealthInfo(Long id, HealthProfileUpdateRequest healthProfileUpdateRequest);
 
     UserStatisticResponse searchUserStatistics(Long id);
+
+    void insertUserProfile(Long id, ProfileInsertRequest request, List<MultipartFile> images);
 }

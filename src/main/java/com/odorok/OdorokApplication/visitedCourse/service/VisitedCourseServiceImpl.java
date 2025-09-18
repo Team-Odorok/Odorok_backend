@@ -58,10 +58,6 @@ public class VisitedCourseServiceImpl implements VisitedCourseService {
 
         // 후기 이미지 업로드
         if (reviewImage != null && !reviewImage.isEmpty()) {
-            // 이미지가 이미 존재하면 삭제
-            if (visitedCourse.getReviewImgUrl() != null && !visitedCourse.getReviewImgUrl().isEmpty()) {
-                s3Service.deleteMany(List.of(visitedCourse.getReviewImgUrl()));
-            }
             // 새 이미지 업로드
             List<String> imageUrls = s3Service.uploadMany("reviews", userId.toString(), List.of(reviewImage));
             visitedCourse.setReviewImgUrl(imageUrls.get(0));
