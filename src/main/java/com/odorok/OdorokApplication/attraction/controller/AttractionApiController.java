@@ -25,11 +25,12 @@ public class AttractionApiController {
 
     @GetMapping("/contenttypes")
     public ResponseEntity<ResponseRoot<ContentTypeResponse>> getAllContentTypes() {
-        log.debug("/api/attractions/contenttypes : 컨텐츠 타입 목록 요청.");
-
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+        log.debug("Request to /api/attractions/contenttypes");
+        ResponseEntity<ResponseRoot<ContentTypeResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.success("컨텐츠 타입 아이디 조회 성공",
                         new ContentTypeResponse(attractionQueryService.queryAllContentTypes())));
+        log.debug("Response from /api/attractions/contenttypes: {}", response.getBody());
+        return response;
     }
 
     @GetMapping("/region")
@@ -37,29 +38,32 @@ public class AttractionApiController {
             @RequestParam("sidoCode") Integer sidoCode,
             @RequestParam("sigunguCode") Integer sigunguCode,
             @RequestParam("contentTypeId") Integer contentTypeId) {
-        log.debug("/api/attractions/retion : 지역 명소 요청. (sidoCode : {}, sigunguCode : {}, contentTypeId {})",
-                sidoCode, sigunguCode, contentTypeId);
-
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+        log.debug("Request to /api/attractions/region with sidoCode: {}, sigunguCode: {}, contentTypeId: {}", sidoCode, sigunguCode, contentTypeId);
+        ResponseEntity<ResponseRoot<AttractionResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.success("지역 명소 조회 성공",
                         new AttractionResponse(attractionQueryService.queryRegionalAttractions(
                                 sidoCode, sigunguCode, contentTypeId
                         ))));
+        log.debug("Response from /api/attractions/region: {}", response.getBody());
+        return response;
     }
 
     @GetMapping("/detail")
     public ResponseEntity<ResponseRoot<AttractionDetail>> getAttractionDetail(
             @RequestParam("attractionId") Long id
     ) {
-        log.debug("/api/attractions/detail : 명소 상세 정보 요청. (attractionId : {})", id);
+        log.debug("Request to /api/attractions/detail with attractionId: {}", id);
         try {
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+            ResponseEntity<ResponseRoot<AttractionDetail>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                     .body(CommonResponseBuilder.success("명소 상세 조회 성공", attractionQueryService.queryAttractionDetail(id)));
+            log.debug("Response from /api/attractions/detail: {}", response.getBody());
+            return response;
         } catch(IllegalArgumentException e) {
-
-            log.debug("예외 발생 = {}",e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            log.debug("Exception in /api/attractions/detail: {}", e.getMessage());
+            ResponseEntity<ResponseRoot<AttractionDetail>> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                     .body(CommonResponseBuilder.fail(e.getMessage()));
+            log.debug("Error response from /api/attractions/detail: {}", response.getBody());
+            return response;
         }
     }
 }

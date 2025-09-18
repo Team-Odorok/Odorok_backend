@@ -1,7 +1,9 @@
 package com.odorok.OdorokApplication.security.filter;
 
+import com.odorok.OdorokApplication.community.repository.ProfileRepository;
 import com.odorok.OdorokApplication.course.repository.UserRepository;
 import com.odorok.OdorokApplication.domain.User;
+import com.odorok.OdorokApplication.draftDomain.Profile;
 import com.odorok.OdorokApplication.security.dto.KakaoUserInfoResponse;
 import com.odorok.OdorokApplication.security.dto.SignupRequest;
 import com.odorok.OdorokApplication.security.exception.EmailNotFoundException;
@@ -70,13 +72,20 @@ public class KakaoLoginFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
     private final WebClient client;
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
 
-    public KakaoLoginFilter(UserQueryService userQueryService, AuthService authService, JWTUtil jwtUtil, @Qualifier("normalClient") WebClient client, UserRepository userRepository) {
+    public KakaoLoginFilter(UserQueryService userQueryService
+            , AuthService authService
+            , JWTUtil jwtUtil
+            , @Qualifier("normalClient") WebClient client
+            , UserRepository userRepository
+            , ProfileRepository profileRepository) {
         this.userQueryService = userQueryService;
         this.authService = authService;
         this.jwtUtil = jwtUtil;
         this.client = client;
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
     }
 
 
@@ -167,10 +176,18 @@ public class KakaoLoginFilter extends OncePerRequestFilter {
         // 카카오톡 로그인 유저 정보가 회원테이블에 없을 경우, 회원가입을 진행한다.
         User user = null;
         if(!userQueryService.existsByEmail(email)) {
+            log.debug("[KAKAO login] 최초 로그인. 회원 정보를 저장합니다.");
             user = new User(null, null, nickname, email, passwordSecret, "ROLE_USER");
             userRepository.save(user);
+            Profile profile = Profile.builder().imgUrl(userInfo.getSafeProfileImageUrl())
+                    .userId(user.getId())
+                    .mileage(0)
+                    .activityPoint(0)
+                    .build();
+            profileRepository.save(profile);
         }
         else {
+            log.debug("[KAKAO login] 회원 정보가 존재합니다.");
             // 회원정보를 불러온다.
             user = userQueryService.queryUserByEmail(email);
         }
@@ -189,10 +206,11 @@ public class KakaoLoginFilter extends OncePerRequestFilter {
         // 밀리초를 초단위로.
         cookie.setMaxAge((int)(REFRESH_TOKEN_EXPIRATION / 1000));
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
         response.addCookie(cookie);
 
         response.setStatus(200);
-        return;
     }
 
     private String getKakaoAuthServerUrl() {

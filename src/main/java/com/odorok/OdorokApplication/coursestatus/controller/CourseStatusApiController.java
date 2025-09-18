@@ -10,6 +10,7 @@ import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/course")
+@Slf4j
 public class CourseStatusApiController {
     private final CourseStatusService courseStatusService;
     //방문 예정 코스를 방문시작하는 것
@@ -27,9 +29,11 @@ public class CourseStatusApiController {
     @PostMapping("/{course-id}/start")
     public ResponseEntity<ResponseRoot<Void>> registCourseStatus(@AuthenticationPrincipal CustomUserDetails user,
                                                                 @PathVariable("course-id") Long courseId) {
-        //작업
+        log.debug("Request to /api/course/{}/start by user {}", courseId, user.getUserId());
         courseStatusService.registCourseStatus(user.getUserId(),courseId);
-        return ResponseEntity.ok(CommonResponseBuilder.success("요청 성공"));
+        ResponseEntity<ResponseRoot<Void>> response = ResponseEntity.ok(CommonResponseBuilder.success("요청 성공"));
+        log.debug("Response from /api/course/{}/start: {}", courseId, response.getBody());
+        return response;
     }
 
     //진행거리는 service에서 사용하면 됨(테스트 필요)
@@ -40,8 +44,11 @@ public class CourseStatusApiController {
                                                        @PathVariable("course-id") Long courseId,
                                                        @RequestParam Double latitude,
                                                        @RequestParam Double longitude) {
+        log.debug("Request to /api/course/{}/distance with latitude: {}, longitude: {}", courseId, latitude, longitude);
         Long distance = courseStatusService.findProgress(user.getUserId(),courseId,latitude,longitude);
-        return ResponseEntity.ok(CommonResponseBuilder.success("요청 성공",distance));
+        ResponseEntity<ResponseRoot<Long>> response = ResponseEntity.ok(CommonResponseBuilder.success("요청 성공",distance));
+        log.debug("Response from /api/course/{}/distance: {}", courseId, response.getBody());
+        return response;
     }
 
     //코스가 종료된다면
@@ -52,8 +59,10 @@ public class CourseStatusApiController {
     public ResponseEntity<ResponseRoot<Void>> updateCourseStatus(@AuthenticationPrincipal CustomUserDetails user,
                                                                  @PathVariable("course-id") Long courseId,
                                                                  @RequestBody updateCourseStatusRequest request) {
-        //작업
+        log.debug("Request to /api/course/{}/end with request: {}", courseId, request);
         courseStatusService.updateCourseStatus(user.getUserId(),courseId, request.getLatitude(), request.getLongitude());
-        return ResponseEntity.ok(CommonResponseBuilder.success("요청 성공"));
+        ResponseEntity<ResponseRoot<Void>> response = ResponseEntity.ok(CommonResponseBuilder.success("요청 성공"));
+        log.debug("Response from /api/course/{}/end: {}", courseId, response.getBody());
+        return response;
     }
 }

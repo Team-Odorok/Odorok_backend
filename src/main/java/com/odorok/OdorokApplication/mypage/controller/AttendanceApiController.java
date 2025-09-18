@@ -7,6 +7,7 @@ import com.odorok.OdorokApplication.security.dto.CustomUserDetails;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,7 @@ import static com.odorok.OdorokApplication.commons.response.CommonResponseBuilde
 @RequiredArgsConstructor
 @RequestMapping("/api/attendances")
 @RestController
+@Slf4j
 public class AttendanceApiController {
     private final AttendanceService attendanceService;
 
@@ -26,23 +28,22 @@ public class AttendanceApiController {
 
     @PostMapping()
     public ResponseEntity<?> registTodayAttendance (@AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/attendances for registration by user: {}", user.getUserId());
         attendanceService.insertTodayAttendance(user.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(successCreated(insertAttendanceSuccessMessage, null));
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.CREATED).body(successCreated(insertAttendanceSuccessMessage, null));
+        log.debug("Response from /api/attendances for registration: {}", response.getBody());
+        return response;
     }
 
     @GetMapping()
     public ResponseEntity<?> searchAttendanceByMonth (@RequestParam @Min(1) @Max(9999) int year,
                                                       @RequestParam @Min(1) @Max(12) int month,
                                                       @AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/attendances for search with year: {}, month: {}", year, month);
         AttendanceResponseDto data = attendanceService.findAttendanceInfoByMonth(user.getUserId(), year, month);
-        return ResponseEntity.status(HttpStatus.OK).body(success(findAttendanceSuccessMessage, data));
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(success(findAttendanceSuccessMessage, data));
+        log.debug("Response from /api/attendances for search: {}", response.getBody());
+        return response;
     }
-
-
-
-
-
-
-
 
 }

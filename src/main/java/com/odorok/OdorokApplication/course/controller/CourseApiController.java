@@ -60,24 +60,29 @@ public class CourseApiController {
                                                                            @RequestParam("sigunguCode") Integer sigunguCode,
                                                                            @AuthenticationPrincipal CustomUserDetails user,
                                                                            @PageableDefault(size = 10, page = 0, sort = "createdAt") Pageable pageable) {
+        log.debug("Request to /api/courses/region with sidoCode: {}, sigunguCode: {}, pageable: {}", sidoCode, sigunguCode, pageable);
         String email = (user != null ? user.getUsername() : null);
-        // 페이징 넣기.
-        log.debug("지역 코스 검색 리퀘스트 : {}, {}, {}, {}, {}", sidoCode, sigunguCode, email, pageable.getPageNumber(), pageable.getPageSize());
 
         if(!courseQueryService.checkSidoCodeValidation(sidoCode)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail("유효하지 않은 시도 코드 입니다. " + sidoCode));
+            ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponseBuilder.fail("유효하지 않은 시도 코드 입니다. " + sidoCode));
+            log.debug("Error response from /api/courses/region: {}", response.getBody());
+            return response;
         }
 
         Long userId = null;
         if (email != null) userId = userService.queryByEmail(email).getId();
-        CourseResponse response = new CourseResponse();
+        CourseResponse courseResponse = new CourseResponse();
         try {
-            response.setItems(courseQueryService.queryCoursesByRegion(sidoCode, sigunguCode, userId, pageable));
+            courseResponse.setItems(courseQueryService.queryCoursesByRegion(sidoCode, sigunguCode, userId, pageable));
         } catch (RuntimeException e) {
             log.debug(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponseBuilder.fail("지역 코스 검색에 실패했습니다."));
+            ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponseBuilder.fail("지역 코스 검색에 실패했습니다."));
+            log.debug("Error response from /api/courses/region: {}", response.getBody());
+            return response;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.success("", response));
+        ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.success("", courseResponse));
+        log.debug("Response from /api/courses/region: {}", response.getBody());
+        return response;
     }
 
     // 전체 코스 리스트
@@ -88,16 +93,20 @@ public class CourseApiController {
     public ResponseEntity<ResponseRoot<CourseResponse>> getAllCourses(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 10, page = 0, sort = "createdAt") Pageable pageable) {
+        log.debug("Request to /api/courses with pageable: {}", pageable);
         String email = (user != null) ? user.getUsername() : null;
-        log.debug("전체 코스 검색 리퀘스트 : {}, {}, {}", email, pageable.getPageNumber(), pageable.getPageSize());
         Long userId = null;
         if (email != null) userId = userService.queryByEmail(email).getId();
         try {
             List<CourseSummary> result = courseQueryService.queryAllCourses(userId, pageable);
-            return ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.success("", new CourseResponse(result)));
+            ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.OK).body(CommonResponseBuilder.success("", new CourseResponse(result)));
+            log.debug("Response from /api/courses: {}", response.getBody());
+            return response;
         } catch (RuntimeException e) {
             log.debug(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponseBuilder.fail("전체 코스 조회에 실패했습니다."));
+            ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponseBuilder.fail("전체 코스 조회에 실패했습니다."));
+            log.debug("Error response from /api/courses: {}", response.getBody());
+            return response;
         }
     }
 
@@ -108,14 +117,18 @@ public class CourseApiController {
     @ApiResponse(responseCode = "400", description = "존재하지 않는 코스 ID로 조회하는 경우임.")
     public ResponseEntity<ResponseRoot<CourseDetail>> getCourseDetail(
             @RequestParam("courseId") Long courseId) {
-        log.debug("코스 상세 조회 요청 : courseId={}", courseId);
+        log.debug("Request to /api/courses/detail with courseId: {}", courseId);
         try {
-            return ResponseEntity.status(HttpStatus.OK)
+            ResponseEntity<ResponseRoot<CourseDetail>> response = ResponseEntity.status(HttpStatus.OK)
                     .body(CommonResponseBuilder.success("", courseQueryService.queryCourseDetail(courseId)));
+            log.debug("Response from /api/courses/detail: {}", response.getBody());
+            return response;
         } catch (IllegalArgumentException e) {
             log.debug(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            ResponseEntity<ResponseRoot<CourseDetail>> response = ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommonResponseBuilder.fail("존재하지 않는 코스 아이디(" + courseId + ") 입니다."));
+            log.debug("Error response from /api/courses/detail: {}", response.getBody());
+            return response;
         }
     }
 
@@ -125,15 +138,16 @@ public class CourseApiController {
     @ApiResponse(responseCode = "200", description = "조회 성공시 요약 정보들이 전송됨")
     @ApiResponse(responseCode = "500", description = "서버 내부에서 조회에 실패하는 경우임.")
     public ResponseEntity<ResponseRoot<TopRatedCourseResponse>> getTopStarsCourses() {
-        log.debug("상위 코스 조회 요청");
-        // criteria => "stars", "visit", "reviews"
+        log.debug("Request to /api/courses/top");
         TopRatedCourseResponse res = new TopRatedCourseResponse();
         res.setTopStars(courseQueryService.queryTopRatedCourses(CourseQueryService.RecommendationCriteria.STARS));
         res.setTopVisited(courseQueryService.queryTopRatedCourses(CourseQueryService.RecommendationCriteria.TOTAL_VISITATION));
         res.setTopReviewCount(courseQueryService.queryTopRatedCourses(CourseQueryService.RecommendationCriteria.REVIEWS));
 
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+        ResponseEntity<ResponseRoot<TopRatedCourseResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.success("", res));
+        log.debug("Response from /api/courses/top: {}", response.getBody());
+        return response;
     }
 
     // 사용자 질병 코스 리스트
@@ -144,12 +158,13 @@ public class CourseApiController {
     public ResponseEntity<ResponseRoot<DiseaseCourseResponse>> getCoursesForDisease(@AuthenticationPrincipal CustomUserDetails user,
                                                                                     @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Long userId = user.getUserId();
-        log.debug("disease request에 대한 유저 아이디 = " + userId);
+        log.debug("Request to /api/courses/disease for user: {}, pageable: {}", userId, pageable);
         List<DiseaseAndCourses> diseaseAndCourses = courseQueryService.queryCoursesForDiseasesOf(userId, CourseQueryService.RecommendationCriteria.STARS, pageable);
-        log.debug("disease request응답 = " + diseaseAndCourses.toString());
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+        ResponseEntity<ResponseRoot<DiseaseCourseResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
                 CommonResponseBuilder.success("", new DiseaseCourseResponse(diseaseAndCourses))
         );
+        log.debug("Response from /api/courses/disease: {}", response.getBody());
+        return response;
     }
 
     // insert into health_infos values(null, 1, 1, 175, 70, 25, 1, 13, 2, 1);g
@@ -161,6 +176,7 @@ public class CourseApiController {
     public ResponseEntity<ResponseRoot<CourseResponse>> getUserRegionCourses(@AuthenticationPrincipal CustomUserDetails user,
                                                                              @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Long userId = user.getUserId();
+        log.debug("Request to /api/courses/user-region for user: {}, pageable: {}", userId, pageable);
         Profile profile = profileQueryService.queryProfileByUserId(userId);
 
 
@@ -171,8 +187,10 @@ public class CourseApiController {
             summaries = new ArrayList<>();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+        ResponseEntity<ResponseRoot<CourseResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.success("", new CourseResponse(summaries)));
+        log.debug("Response from /api/courses/user-region: {}", response.getBody());
+        return response;
     }
 
     // 방문 예정 코스 조회
@@ -181,10 +199,13 @@ public class CourseApiController {
     @ApiResponse(responseCode = "200", description = "조회 성공시 날짜와 코스 정보들이 전송됨")
     @ApiResponse(responseCode = "500", description = "서버 내부에서 조회에 실패하는 경우임.")
     public ResponseEntity<ResponseRoot<VisitationScheduleResponse>> getCourseSchedule(@AuthenticationPrincipal CustomUserDetails user) {
+        log.debug("Request to /api/courses/schedule for user: {}", user.getUserId());
         List<VisitationScheduleSummary> summaries = courseScheduleQueryService.queryAllSchedule(user.getUserId());
 
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+        ResponseEntity<ResponseRoot<VisitationScheduleResponse>> response = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.success("", new VisitationScheduleResponse(summaries)));
+        log.debug("Response from /api/courses/schedule: {}", response.getBody());
+        return response;
     }
 
     // 코스 리뷰 조회
@@ -197,10 +218,13 @@ public class CourseApiController {
     @ApiResponse(responseCode = "500", description = "서버 내부에서 등록에 실패하는 경우임.")
     public ResponseEntity<ResponseRoot<?>> registNewVisitationSchedule(@AuthenticationPrincipal CustomUserDetails user,
             @RequestBody CourseScheduleRequest request) {
+        log.debug("Request to /api/courses/schedule for registration with request: {}", request);
         courseScheduleManageService.registSchedule(request, user.getUserId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON)
+        ResponseEntity<ResponseRoot<?>> response = ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON)
                 .body(CommonResponseBuilder.successCreated("코스 방문 예정 등록에 성공했습니다.", null));
+        log.debug("Response from /api/courses/schedule for registration: {}", response.getBody());
+        return response;
     }
 
     // 코스 리뷰 조회
