@@ -37,10 +37,10 @@ public class DiaryImageServiceImpl implements DiaryImageService {
         }
     }
 
-    @Override
-    public void deleteDiaryImages(List<String> imgUrls) {
-        s3Service.deleteMany(imgUrls);
-    }
+//    @Override
+//    public void deleteDiaryImages(List<String> imgUrls) {
+//        s3Service.deleteMany(imgUrls);
+//    }
 
     @Override
     public List<DiaryImage> getDiaryImages(Long diaryId) {

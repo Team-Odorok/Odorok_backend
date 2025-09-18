@@ -6,6 +6,7 @@ import com.odorok.OdorokApplication.commons.exception.NotFoundException;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRegenerationRequest;
 import com.odorok.OdorokApplication.diary.dto.request.DiaryRequest;
 import com.odorok.OdorokApplication.diary.dto.response.*;
+import com.odorok.OdorokApplication.diary.repository.DiaryImageRepository;
 import com.odorok.OdorokApplication.diary.repository.PurchaseHistoryRepository;
 import com.odorok.OdorokApplication.diary.repository.VisitedCourseRepository;
 import com.odorok.OdorokApplication.diary.dto.gpt.VisitedCourseAndAttraction;
@@ -43,6 +44,7 @@ public class DiaryServiceImpl implements DiaryService{
     private final ItemRepository itemRepository;
     private final VisitedCourseRepository visitedCourseRepository;
     private final DiaryImageService diaryImageService;
+    private final DiaryImageRepository diaryImageRepository;
     private final ProfileRepository profileRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
 
@@ -118,15 +120,9 @@ public class DiaryServiceImpl implements DiaryService{
             log.warn("일지 삭제 실패: 권한 없음. diaryId={}, userId={}", diaryId, userId);
             throw new AccessDeniedException("본인이 작성한 일지만 삭제할 수 있음");
         }
-        // 다이어리 이미지 삭제
-        List<DiaryImage> diaryImages = Optional.ofNullable(diaryImageService.getDiaryImages(diaryId))
-                .orElse(Collections.emptyList());
-        List<String> imgUrls = diaryImages.stream()
-                .map(DiaryImage::getImgUrl)
-                .collect(Collectors.toList());
 
-        log.info("일지 이미지 삭제 시작: diaryId={}, imageCount={}", diaryId, imgUrls.size());
-        diaryImageService.deleteDiaryImages(imgUrls);
+        // 데이터베이스에서 다이어리 이미지 레코드 삭제
+        diaryImageRepository.deleteAllByDiaryId(diaryId);
 
         // 다이어리 삭제
         diaryRepository.deleteById(diaryId);
@@ -248,7 +244,7 @@ public class DiaryServiceImpl implements DiaryService{
 
             return savedDiary.getId();
         } catch (Exception e) {
-            diaryImageService.deleteDiaryImages(imageUrls);
+//            diaryImageService.deleteDiaryImages(imageUrls);
             log.error("일지 DB 등록 중 예외 발생 - 이미지 정리 후 예외 전파", e);
             throw e;
         }
