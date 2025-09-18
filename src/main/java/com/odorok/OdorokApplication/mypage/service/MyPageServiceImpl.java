@@ -140,11 +140,15 @@ public class MyPageServiceImpl implements MyPageService{
         Integer attendanceCount = attendanceRepository.countByUserId(id);
         Integer likeSum = 0;
         for(Integer i : likeList){
-            likeSum += i;
+            if (i != null) {
+                likeSum += i;
+            }
         }
         Integer distanceSum = 0;
         for(Integer i : distanceList){
-            distanceSum += i;
+            if (i != null) {
+                distanceSum += i;
+            }
         }
         UserStatisticResponse response = UserStatisticResponse.builder()
                 .myPostCount(likeList.size())
