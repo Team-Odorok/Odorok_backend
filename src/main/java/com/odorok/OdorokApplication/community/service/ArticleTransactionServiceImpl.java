@@ -28,7 +28,9 @@ public class ArticleTransactionServiceImpl implements ArticleTransactionService{
         articleRepository.save(article);
         Long articleId = article.getId();
         //url리스트 db작업
-        articleImageService.insertArticleImageUrl(articleId,urls);
+        if(urls!=null){
+            articleImageService.insertArticleImageUrl(articleId,urls);
+        }
         //유저 프로필 조회
         Profile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("유저 프로필 없음"));

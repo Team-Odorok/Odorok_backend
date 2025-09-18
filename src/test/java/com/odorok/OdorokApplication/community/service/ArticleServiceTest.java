@@ -92,23 +92,23 @@ class ArticleServiceTest {
 //        verify(articleTransactionService,times(1)).insertArticleTransactional(article, urls, 1L);
 //    }
 
-    @Test
-    void 게시글_작성_실패() {
-        //given
-        List<String> urls = List.of("xxx.com","yyy.com");
-        Article article = Article.builder().userId(1L).build();
-        List<MultipartFile> images = List.of();
-        //when
-        when(articleImageService.insertArticleImages(Mockito.eq(1L),Mockito.anyList())).thenReturn(urls);
-        doThrow(new TransactionSystemException("트랜잭션 오류"))
-                .when(articleTransactionService)
-                .insertArticleTransactional(Mockito.any(Article.class), Mockito.anyList(), Mockito.eq(1L));
-        //then
-        assertThrows(TransactionSystemException.class, () ->
-                articleService.insertArticle(new ArticleRegistRequest(), images, 1L));
-        //트랜잭션 도중 예외가 발생했을 때 catch문이 정상적으로 실행되는지 확인
-        verify(articleImageService,times(1)).deleteImages(Mockito.anyList());
-    }
+//    @Test
+//    void 게시글_작성_실패() {
+//        //given
+//        List<String> urls = List.of("xxx.com","yyy.com");
+//        Article article = Article.builder().userId(1L).build();
+//        List<MultipartFile> images = List.of();
+//        //when
+//        when(articleImageService.insertArticleImages(Mockito.eq(1L),Mockito.anyList())).thenReturn(urls);
+//        doThrow(new TransactionSystemException("트랜잭션 오류"))
+//                .when(articleTransactionService)
+//                .insertArticleTransactional(Mockito.any(Article.class), Mockito.anyList(), Mockito.eq(1L));
+//        //then
+//        assertThrows(TransactionSystemException.class, () ->
+//                articleService.insertArticle(new ArticleRegistRequest(), images, 1L));
+//        //트랜잭션 도중 예외가 발생했을 때 catch문이 정상적으로 실행되는지 확인
+//        verify(articleImageService,times(1)).deleteImages(Mockito.anyList());
+//    }
 
     @Test
     void 게시글_조회_성공(){

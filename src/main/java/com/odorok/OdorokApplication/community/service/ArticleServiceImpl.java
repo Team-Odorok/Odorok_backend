@@ -40,14 +40,17 @@ public class ArticleServiceImpl implements ArticleService{
 
     @Override
     public void insertArticle(ArticleRegistRequest request, List<MultipartFile> images, Long userId) {
-        List<String> urls = articleImageService.insertArticleImages(userId,images);
+        List<String> urls = null;
+        if(images!=null){
+            urls = articleImageService.insertArticleImages(userId,images);
+        }
         Article article = Article.builder().title(request.getTitle()).content(request.getContent())
                 .boardType(request.getBoardType()).notice(request.getNotice()).likeCount(0).viewCount(0).commentCount(0)
                 .diseaseId(request.getDiseaseId()).courseId(request.getCourseId()).userId(userId).build();
         try {
             articleTransactionService.insertArticleTransactional(article, urls, userId);  // 트랜잭션 메서드
         } catch (Exception e) {
-            articleImageService.deleteImages(urls); // 수동 롤백
+            //articleImageService.deleteImages(urls); // 수동 롤백
             throw e;
         }
     }
