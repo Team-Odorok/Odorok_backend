@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -26,6 +27,7 @@ public class ArticleDetail {
     private String nickName;
     private String tierTitle;
     private Boolean isLikedByUser;
+    private List<String> articleImageList;
 
     public ArticleDetail(Long id, String title, String content, LocalDateTime createdAt, Integer likeCount, Integer viewCount, Integer commentCount, Boolean notice, Long userId, String nickName, String tierTitle) {
         this.id = id;

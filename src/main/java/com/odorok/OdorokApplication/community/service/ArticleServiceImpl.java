@@ -9,10 +9,7 @@ import com.odorok.OdorokApplication.community.dto.response.ArticleDetail;
 import com.odorok.OdorokApplication.community.dto.response.ArticleSearchResponse;
 import com.odorok.OdorokApplication.community.dto.response.ArticleSummary;
 import com.odorok.OdorokApplication.community.dto.response.CommentSummary;
-import com.odorok.OdorokApplication.community.repository.ArticleRepository;
-import com.odorok.OdorokApplication.community.repository.CommentRepository;
-import com.odorok.OdorokApplication.community.repository.DiseaseRepository;
-import com.odorok.OdorokApplication.community.repository.LikeRepository;
+import com.odorok.OdorokApplication.community.repository.*;
 import com.odorok.OdorokApplication.domain.Comment;
 import com.odorok.OdorokApplication.domain.Like;
 import com.odorok.OdorokApplication.draftDomain.Article;
@@ -33,6 +30,7 @@ import java.util.Optional;
 public class ArticleServiceImpl implements ArticleService{
     private final ArticleImageService articleImageService;
     private final ArticleRepository articleRepository;
+    private final ArticleImageRepository articleImageRepository;
     private final ArticleTransactionService articleTransactionService;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
@@ -69,6 +67,8 @@ public class ArticleServiceImpl implements ArticleService{
         }
         Optional<Like> like = likeRepository.findByArticleIdAndUserId(articleId,userId);
         articleDetail.setIsLikedByUser(!like.isEmpty());
+        List<String> articleList = articleImageRepository.findImgUrlsByArticleId(articleId);
+        articleDetail.setArticleImageList(articleList);
         return articleDetail;
     }
 
