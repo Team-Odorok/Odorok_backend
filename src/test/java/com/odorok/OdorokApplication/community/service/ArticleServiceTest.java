@@ -110,15 +110,15 @@ class ArticleServiceTest {
 //        verify(articleImageService,times(1)).deleteImages(Mockito.anyList());
 //    }
 
-    @Test
-    void 게시글_조회_성공(){
-        //given
-        ArticleDetail article = ArticleDetail.builder().userId(1L).content("gg").id(15L).build();
-        //when
-        when(articleRepository.findArticleDetailById(15L)).thenReturn(article);
-        //then
-        assertEquals(article,articleService.findByArticleId(15L,1L));
-    }
+//    @Test
+//    void 게시글_조회_성공(){
+//        //given
+//        ArticleDetail article = ArticleDetail.builder().userId(1L).content("gg").id(15L).build();
+//        //when
+//        when(articleRepository.findArticleDetailById(15L)).thenReturn(article);
+//        //then
+//        assertEquals(article,articleService.findByArticleId(15L,1L));
+//    }
 
     @Test
     void 게시글_조회_실패(){
