@@ -210,7 +210,7 @@ public class KakaoLoginFilter extends OncePerRequestFilter {
 
         response.addCookie(cookie);
 
-        response.setStatus(200);
+        response.sendRedirect("http://localhost:5174/");
     }
 
     private String getKakaoAuthServerUrl() {
